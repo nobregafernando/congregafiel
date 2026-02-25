@@ -24,7 +24,7 @@ LINE_SPACING = 1.5
 INSTITUICAO = "FACULDADE INSTED"
 CURSO = "Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas"
 CIDADE = "Campo Grande – MS"
-ANO = "2025"
+ANO = "2026"
 
 doc = Document()
 
@@ -701,37 +701,110 @@ add_table(
 )
 
 # ============================================================
-# 7. ARQUITETURA DO SISTEMA
+# 7. ARQUITETURA ORIENTADA A SERVIÇOS
 # ============================================================
 add_page_break()
-add_section_title("7", "ARQUITETURA DO SISTEMA")
+add_section_title("7", "ARQUITETURA ORIENTADA A SERVIÇOS")
 
 add_justified_text(
-    "A arquitetura do Congrega Fiel segue o padrão de aplicação web client-side, "
-    "onde toda a lógica de apresentação e interação é processada no navegador do "
-    "usuário. Essa abordagem é adequada para o MVP, pois permite entregas rápidas "
-    "e foco na experiência do usuário."
+    "A Arquitetura Orientada a Serviços (SOA — Service-Oriented Architecture) é "
+    "um modelo arquitetural no qual as funcionalidades de um sistema são "
+    "disponibilizadas na forma de serviços independentes, que se comunicam por "
+    "meio de protocolos padronizados. Esse paradigma favorece o desacoplamento "
+    "entre os componentes, a reutilização de código e a escalabilidade."
 )
-
-add_subsection_title("7.1", "Estrutura de Camadas")
 
 add_justified_text(
-    "O sistema é organizado em três camadas lógicas, seguindo a separação de "
-    "responsabilidades:"
+    "No contexto do Congrega Fiel, a arquitetura do sistema é pensada para que "
+    "o front-end (interface do usuário) consuma dados de uma camada de serviços "
+    "por meio de Web APIs, seguindo os princípios da SOA. Mesmo no MVP, essa "
+    "separação é respeitada para facilitar a evolução futura do projeto."
 )
 
-for c in [
-    "Camada de Apresentação (HTML): responsável pela estrutura e semântica das "
-    "páginas, definindo os elementos visuais com os quais o usuário interage.",
-    "Camada de Estilização (CSS): responsável pela aparência visual, incluindo "
-    "layout responsivo, tipografia, paleta de cores e animações.",
-    "Camada de Lógica (JavaScript): responsável pelo comportamento dinâmico da "
-    "aplicação, incluindo validações, manipulação de dados, controle de rotas "
-    "e comunicação com o armazenamento local.",
-]:
-    add_bullet_item(c)
+add_subsection_title("7.1", "Web Services: SOAP e REST")
 
-add_subsection_title("7.2", "Estrutura de Diretórios")
+add_justified_text(
+    "Web Services são serviços disponibilizados na web que permitem a comunicação "
+    "entre diferentes sistemas. Existem dois modelos principais:"
+)
+
+add_bullet_item(
+    "SOAP (Simple Object Access Protocol): protocolo baseado em XML que define "
+    "um formato rígido de mensagens. Utiliza o WSDL (Web Services Description "
+    "Language) para descrever os serviços. É mais robusto e indicado para "
+    "cenários que exigem alta segurança e transações complexas, como sistemas "
+    "bancários."
+)
+add_bullet_item(
+    "REST (Representational State Transfer): estilo arquitetural mais leve e "
+    "flexível, que utiliza os métodos nativos do protocolo HTTP para realizar "
+    "operações sobre recursos. Trabalha com formatos como JSON e XML, sendo "
+    "amplamente adotado em aplicações web e mobile modernas."
+)
+
+add_justified_text(
+    "Para o Congrega Fiel, optou-se pela abordagem REST por ser mais adequada "
+    "a aplicações web, mais simples de implementar e consumir, e por utilizar "
+    "o formato JSON, que possui melhor integração com JavaScript."
+)
+
+add_subsection_title("7.2", "Protocolo HTTP e Métodos RESTful")
+
+add_justified_text(
+    "O HTTP (HyperText Transfer Protocol) é o protocolo de comunicação utilizado "
+    "na web para a transferência de dados entre cliente e servidor. No padrão "
+    "RESTful, cada recurso do sistema é acessado por uma URL específica e "
+    "manipulado por meio dos seguintes métodos HTTP:"
+)
+
+http_methods = [
+    ["GET", "Consultar/listar recursos", "GET /api/membros — lista todos os membros"],
+    ["POST", "Criar um novo recurso", "POST /api/membros — cadastra um novo membro"],
+    ["PUT", "Atualizar um recurso existente", "PUT /api/membros/1 — atualiza o membro de ID 1"],
+    ["DELETE", "Remover um recurso", "DELETE /api/membros/1 — remove o membro de ID 1"],
+]
+
+add_table(
+    headers=["Método", "Ação", "Exemplo no Congrega Fiel"],
+    rows=http_methods,
+    col_widths=[2.5, 4.5, 9]
+)
+
+add_justified_text(
+    "Essa padronização garante que a comunicação entre o front-end e a API seja "
+    "previsível, documentável e compatível com qualquer cliente HTTP."
+)
+
+add_subsection_title("7.3", "Web API e Frameworks")
+
+add_justified_text(
+    "Uma Web API (Application Programming Interface) é uma interface que expõe "
+    "funcionalidades de um sistema para serem consumidas por outras aplicações "
+    "via HTTP. No projeto Congrega Fiel, dois frameworks foram estudados para "
+    "a construção da API:"
+)
+
+add_bullet_item(
+    "Node.js com Express: framework minimalista para JavaScript no servidor. "
+    "Permite criar rotas RESTful de forma rápida e com baixa curva de "
+    "aprendizado, sendo ideal para MVPs e prototipação. Possui vasto "
+    "ecossistema de pacotes via npm."
+)
+add_bullet_item(
+    "JSON Server: ferramenta que simula uma API REST completa a partir de um "
+    "arquivo JSON. Permite ao front-end consumir dados via HTTP (GET, POST, "
+    "PUT, DELETE) sem a necessidade de configurar um back-end real, sendo "
+    "ideal para a fase de desenvolvimento e testes do MVP."
+)
+
+add_justified_text(
+    "Para a fase inicial do MVP, será utilizado o JSON Server para simular a "
+    "API, permitindo que a equipe de front-end desenvolva e teste as interfaces "
+    "de forma independente. Em versões futuras, a migração para Express com "
+    "banco de dados será realizada."
+)
+
+add_subsection_title("7.4", "Estrutura de Diretórios")
 
 dir_structure = [
     ["congregafiel/", "Diretório raiz do projeto"],
@@ -753,6 +826,7 @@ dir_structure = [
     ["    financeiro.js", "Lógica financeira"],
     ["    eventos.js", "Lógica de eventos"],
     ["  assets/", "Recursos estáticos (imagens, ícones)"],
+    ["  db.json", "Banco de dados simulado (JSON Server)"],
 ]
 
 add_table(
@@ -827,18 +901,16 @@ add_section_title("9", "CRONOGRAMA DO MVP")
 
 add_justified_text(
     "O cronograma a seguir apresenta as principais etapas do desenvolvimento do MVP "
-    "do Congrega Fiel, organizadas em sprints quinzenais. O planejamento considera a "
-    "disponibilidade da equipe e a complexidade de cada módulo."
+    "do Congrega Fiel, organizadas em quatro sprints semanais com início em "
+    "24 de fevereiro de 2026. O planejamento considera a disponibilidade da equipe "
+    "e a complexidade de cada módulo."
 )
 
 cronograma_data = [
-    ["Sprint 1", "Semana 1–2", "Levantamento de requisitos, definição de escopo e documentação inicial"],
-    ["Sprint 2", "Semana 3–4", "Prototipação de telas (Figma) e estruturação HTML das páginas principais"],
-    ["Sprint 3", "Semana 5–6", "Estilização CSS (layout responsivo) e implementação do módulo de autenticação"],
-    ["Sprint 4", "Semana 7–8", "Desenvolvimento dos módulos de gestão de membros e gestão da igreja"],
-    ["Sprint 5", "Semana 9–10", "Desenvolvimento do módulo financeiro e módulo de eventos"],
-    ["Sprint 6", "Semana 11–12", "Integração entre módulos, testes e correções"],
-    ["Sprint 7", "Semana 13–14", "Documentação final, ajustes de usabilidade e preparação para apresentação"],
+    ["Sprint 1", "24/02 – 02/03", "Documentação inicial, levantamento de requisitos, definição de escopo e prototipação de telas (Figma)"],
+    ["Sprint 2", "03/03 – 09/03", "Estruturação HTML das páginas, estilização CSS responsiva e módulo de autenticação"],
+    ["Sprint 3", "10/03 – 16/03", "Módulos de gestão de membros, gestão financeira e eventos; integração com API (JSON Server)"],
+    ["Sprint 4", "17/03 – 23/03", "Integração final, testes, correções, documentação final e preparação para apresentação"],
 ]
 
 add_table(
@@ -905,15 +977,15 @@ referencias = [
 
     'MOZILLA DEVELOPER NETWORK. HTML: Linguagem de Marcação de HiperTexto. '
     'Disponível em: https://developer.mozilla.org/pt-BR/docs/Web/HTML. '
-    'Acesso em: 24 fev. 2025.',
+    'Acesso em: 24 fev. 2026.',
 
     'MOZILLA DEVELOPER NETWORK. CSS: Folhas de Estilo em Cascata. '
     'Disponível em: https://developer.mozilla.org/pt-BR/docs/Web/CSS. '
-    'Acesso em: 24 fev. 2025.',
+    'Acesso em: 24 fev. 2026.',
 
     'MOZILLA DEVELOPER NETWORK. JavaScript. '
     'Disponível em: https://developer.mozilla.org/pt-BR/docs/Web/JavaScript. '
-    'Acesso em: 24 fev. 2025.',
+    'Acesso em: 24 fev. 2026.',
 
     'PRESSMAN, R. S.; MAXIM, B. R. Engenharia de software: uma abordagem '
     'profissional. 9. ed. Porto Alegre: AMGH, 2021.',
