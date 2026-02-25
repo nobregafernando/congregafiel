@@ -1,0 +1,189 @@
+<!-- /igreja/eventos.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eventos | Congrega Fiel</title>
+  <meta name="description" content="Gerencie os eventos e programações da sua igreja no Congrega Fiel." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="eventos.css" />
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <div class="sidebar__logo">CF</div>
+      <div class="sidebar__brand-text">
+        <strong>Congrega Fiel</strong>
+        <span>Painel da Igreja</span>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav" aria-label="Menu principal">
+      <a href="painel.html" class="sidebar__link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Painel</span>
+      </a>
+      <a href="fieis.html" class="sidebar__link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Fi&eacute;is</span>
+      </a>
+      <a href="eventos.html" class="sidebar__link sidebar__link--active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><rect x="7" y="14" width="3" height="3" rx="0.5"/></svg>
+        <span>Eventos</span>
+      </a>
+      <a href="pagamentos.html" class="sidebar__link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="3"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
+        <span>Pagamentos</span>
+      </a>
+      <a href="comunicados.html" class="sidebar__link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="12" y1="2" x2="12" y2="5"/></svg>
+        <span>Comunicados</span>
+      </a>
+      <a href="pedidos-oracao.html" class="sidebar__link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>Pedidos de Ora&ccedil;&atilde;o</span>
+      </a>
+
+      <div class="sidebar__divider"></div>
+
+      <button class="sidebar__link sidebar__link--logout" id="btnSair" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Sair</span>
+      </button>
+    </nav>
+  </aside>
+
+  <!-- SIDEBAR OVERLAY (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <!-- TOP HEADER -->
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="topbar__hamburger" id="menuToggle" type="button" aria-label="Abrir menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <h2 class="topbar__church" id="churchName">Igreja</h2>
+      </div>
+      <div class="topbar__right">
+        <div class="topbar__user">
+          <div class="topbar__avatar" id="userAvatar">P</div>
+          <span class="topbar__username" id="userName">Pastor</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="content">
+      <!-- PAGE HEADER -->
+      <div class="page-header">
+        <div class="page-header__text">
+          <h1>Eventos</h1>
+          <p class="page-header__subtitle">Gerencie os eventos e programa&ccedil;&otilde;es da sua igreja.</p>
+        </div>
+        <button class="btn btn--primary" id="btnCriarEvento" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Criar evento
+        </button>
+      </div>
+
+      <!-- EVENTS GRID -->
+      <div class="events-grid" id="eventsGrid">
+        <!-- Cards rendered by JS -->
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-state__icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <h3>Nenhum evento cadastrado</h3>
+        <p>Crie o primeiro evento da sua igreja clicando no bot&atilde;o acima.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL CRIAR EVENTO -->
+  <div class="modal" id="modalEvento" aria-hidden="true">
+    <div class="modal__overlay" id="modalOverlay"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+      <div class="modal__header">
+        <h3 id="modalTitulo">Novo evento</h3>
+        <button class="modal__close" id="btnFecharModal" type="button" aria-label="Fechar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <form class="form" id="formEvento" novalidate>
+        <div class="form-group">
+          <label for="inputTitulo">T&iacute;tulo do evento</label>
+          <input type="text" id="inputTitulo" name="titulo" placeholder="Ex: Culto de Jovens" required />
+          <span class="form-error" id="erroTitulo"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="inputDescricao">Descri&ccedil;&atilde;o <span class="label-opt">(opcional)</span></label>
+          <textarea id="inputDescricao" name="descricao" rows="3" placeholder="Descreva o evento..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inputData">Data</label>
+            <input type="date" id="inputData" name="data" required />
+            <span class="form-error" id="erroData"></span>
+          </div>
+          <div class="form-group">
+            <label for="inputHora">Hor&aacute;rio</label>
+            <input type="time" id="inputHora" name="hora" required />
+            <span class="form-error" id="erroHora"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputLocal">Local</label>
+          <input type="text" id="inputLocal" name="local" placeholder="Ex: Templo sede" required />
+          <span class="form-error" id="erroLocal"></span>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn--ghost" id="btnCancelar">Cancelar</button>
+          <button type="submit" class="btn btn--primary">Salvar evento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMAR EXCLUSAO -->
+  <div class="modal" id="modalConfirm" aria-hidden="true">
+    <div class="modal__overlay" id="confirmOverlay"></div>
+    <div class="modal__dialog modal__dialog--sm" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitulo">
+      <div class="modal__header">
+        <h3 id="confirmTitulo">Excluir evento</h3>
+        <button class="modal__close" id="btnFecharConfirm" type="button" aria-label="Fechar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <p class="confirm-text">Tem certeza que deseja excluir este evento? Esta a&ccedil;&atilde;o n&atilde;o pode ser desfeita.</p>
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" id="btnCancelarConfirm">Cancelar</button>
+        <button type="button" class="btn btn--danger" id="btnConfirmarExclusao">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="eventos.js"></script>
+</body>
+</html>

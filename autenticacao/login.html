@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar | Congrega Fiel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --bg-soft: #FDF8F3;
+      --bg-cream: #F5EDE3;
+      --text: #3D2E22;
+      --text-heading: #1A0F06;
+      --muted: #8A7B6D;
+      --line: rgba(139, 90, 43, 0.12);
+      --primary: #C4837A;
+      --primary-2: #A86B63;
+      --success: #2D8A4E;
+      --danger: #DC2626;
+      --shadow-strong: 0 8px 32px rgba(45, 27, 14, 0.1), 0 2px 6px rgba(45, 27, 14, 0.04);
+      --radius-sm: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: linear-gradient(135deg, #FDF8F3 0%, #F9F1E8 50%, #FDF8F3 100%);
+      color: var(--text);
+      min-height: 100dvh;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-strong);
+    }
+
+    .auth-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .auth-brand__logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 6px 16px rgba(196, 131, 122, 0.25);
+      color: white;
+    }
+
+    .auth-brand__text { display: grid; line-height: 1.15; }
+    .auth-brand__text strong { font-size: 0.9rem; font-weight: 700; }
+    .auth-brand__text span { font-size: 0.72rem; color: var(--muted); }
+
+    .auth-card h1 {
+      font-family: "Lora", Georgia, serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.15rem;
+      letter-spacing: -0.02em;
+      color: var(--text-heading);
+    }
+
+    .auth-card .subtitle {
+      color: var(--muted);
+      font-size: 0.84rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .form-group { margin-bottom: 0.85rem; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--text);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper .icon-left {
+      position: absolute;
+      left: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      pointer-events: none;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.75rem 0.65rem 2.4rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-wrapper input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(196, 131, 122, 0.1);
+    }
+
+    .input-wrapper input::placeholder { color: rgba(122, 107, 93, 0.45); }
+
+    .input-wrapper input.input-error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 0.5rem;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0.25rem;
+      display: flex;
+      transition: color 0.2s;
+    }
+
+    .toggle-password:hover { color: var(--text); }
+
+    .error-msg {
+      font-size: 0.76rem;
+      color: var(--danger);
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    .error-msg.show { display: block; }
+
+    .form-actions {
+      margin-top: 0.25rem;
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 0.75rem;
+    }
+
+    .link-small {
+      font-size: 0.82rem;
+      color: var(--primary);
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    .link-small:hover { opacity: 0.8; }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 0.68rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s, filter 0.2s;
+      width: 100%;
+      font-size: 0.9rem;
+    }
+
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.03); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; filter: none; }
+
+    .btn--primary {
+      color: white;
+      background: var(--primary);
+      box-shadow: 0 8px 20px rgba(196, 131, 122, 0.2);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1rem 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .divider::before, .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .auth-footer {
+      text-align: center;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .auth-footer a {
+      color: var(--primary);
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+
+    .auth-footer a:hover { opacity: 0.8; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 1rem;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--primary); }
+
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 120;
+      min-width: 220px;
+      max-width: 340px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 0.75rem 0.85rem;
+      box-shadow: var(--shadow-strong);
+      font-size: 0.88rem;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .toast--success { border-color: rgba(45, 138, 78, 0.3); }
+    .toast--error { border-color: rgba(220, 38, 38, 0.3); }
+
+    @media (max-width: 480px) {
+      body { padding: 0.75rem; }
+      .auth-card { padding: 1.25rem 1rem; border-radius: 16px; }
+      .toast { left: 12px; right: 12px; bottom: 12px; min-width: 0; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <a href="../index.html" class="auth-brand" aria-label="Voltar ao site">
+      <div class="auth-brand__logo">CF</div>
+      <div class="auth-brand__text">
+        <strong>Congrega Fiel</strong>
+        <span>Gestão da comunidade da igreja</span>
+      </div>
+    </a>
+
+    <h1>Entrar na sua conta</h1>
+    <p class="subtitle">Acesse o painel da sua igreja ou comunidade</p>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <div class="input-wrapper">
+          <span class="icon-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><polyline points="22,7 12,13 2,7"/></svg>
+          </span>
+          <input type="email" id="email" placeholder="seu@email.com" autocomplete="email" required />
+        </div>
+        <p class="error-msg" id="emailError"></p>
+      </div>
+
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <div class="input-wrapper">
+          <span class="icon-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          <input type="password" id="senha" placeholder="Sua senha" autocomplete="current-password" required />
+          <button type="button" class="toggle-password" aria-label="Mostrar senha" data-target="senha">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon-eye-off" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/></svg>
+          </button>
+        </div>
+        <p class="error-msg" id="senhaError"></p>
+      </div>
+
+      <div class="form-actions">
+        <a href="recuperar-senha.html" class="link-small">Esqueceu a senha?</a>
+      </div>
+
+      <button type="submit" class="btn btn--primary" id="btnLogin">Entrar</button>
+    </form>
+
+    <div class="divider">ou</div>
+
+    <p class="auth-footer">
+      Ainda não tem conta? <a href="criar-conta.html">Criar conta</a>
+    </p>
+
+    <div style="text-align:center">
+      <a href="../index.html" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+        Voltar ao site
+      </a>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+  (() => {
+    "use strict";
+
+    const $ = (sel, scope = document) => scope.querySelector(sel);
+    let toastTimer = null;
+
+    function showToast(msg, type = "") {
+      const el = $("#toast");
+      if (!el) return;
+      el.textContent = msg;
+      el.className = "toast show" + (type ? " toast--" + type : "");
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.className = "toast"; }, 3000);
+    }
+
+    const toggleBtn = $(".toggle-password");
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", () => {
+        const input = $("#" + toggleBtn.dataset.target);
+        if (!input) return;
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+        toggleBtn.setAttribute("aria-label", isPassword ? "Ocultar senha" : "Mostrar senha");
+        $(".icon-eye", toggleBtn).style.display = isPassword ? "none" : "";
+        $(".icon-eye-off", toggleBtn).style.display = isPassword ? "" : "none";
+      });
+    }
+
+    function showError(id, msg) {
+      const el = $("#" + id);
+      const input = el?.previousElementSibling?.querySelector("input");
+      if (el) { el.textContent = msg; el.classList.add("show"); }
+      if (input) input.classList.add("input-error");
+    }
+
+    function clearErrors() {
+      document.querySelectorAll(".error-msg").forEach(e => { e.textContent = ""; e.classList.remove("show"); });
+      document.querySelectorAll("input").forEach(i => i.classList.remove("input-error"));
+    }
+
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function getIgrejaNome(igrejaId) {
+      const igrejas = JSON.parse(localStorage.getItem("cf_igrejas") || "[]");
+      const igreja = igrejas.find(i => i.id === igrejaId);
+      return igreja ? igreja.nomeIgreja : "";
+    }
+
+    $("#loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      clearErrors();
+
+      const email = $("#email").value.trim();
+      const senha = $("#senha").value;
+      let valid = true;
+
+      if (!email || !validateEmail(email)) {
+        showError("emailError", "Informe um e-mail válido");
+        valid = false;
+      }
+
+      if (!senha) {
+        showError("senhaError", "Informe sua senha");
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      const igrejas = JSON.parse(localStorage.getItem("cf_igrejas") || "[]");
+      const membros = JSON.parse(localStorage.getItem("cf_membros") || "[]");
+
+      const userIgreja = igrejas.find(u => u.email === email && u.senha === senha);
+      const userMembro = membros.find(u => u.email === email && u.senha === senha);
+
+      const user = userIgreja || userMembro;
+      const tipo = userIgreja ? "igreja" : "membro";
+
+      if (!user) {
+        showToast("E-mail ou senha incorretos", "error");
+        return;
+      }
+
+      const sessao = {
+        tipo: tipo,
+        id: user.id,
+        nome: tipo === "igreja" ? user.nomePastor : user.nomeCompleto,
+        email: user.email,
+        igrejaId: tipo === "igreja" ? user.id : user.igrejaId,
+        nomeIgreja: tipo === "igreja" ? user.nomeIgreja : getIgrejaNome(user.igrejaId),
+        codigoIgreja: tipo === "igreja" ? user.codigo : user.codigoIgreja,
+        logadoEm: new Date().toISOString()
+      };
+
+      localStorage.setItem("cf_sessao", JSON.stringify(sessao));
+      showToast("Login realizado com sucesso!", "success");
+
+      setTimeout(() => {
+        if (tipo === "igreja") {
+          window.location.href = "../igreja/painel.html";
+        } else {
+          window.location.href = "../membros/painel.html";
+        }
+      }, 800);
+    });
+  })();
+  </script>
+</body>
+</html>
