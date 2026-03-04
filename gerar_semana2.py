@@ -721,18 +721,45 @@ add_heading_custom('12.6  Deploy do Front-end (Firebase)', 2)
 add_body('firebase login')
 add_body('firebase deploy')
 
-# ==================== 13 PROXIMOS PASSOS ====================
-add_heading_custom('13  PROXIMOS PASSOS (SPRINT 3)', 1)
+# ==================== 13 DEPLOY ONLINE DAS APIs ====================
+add_heading_custom('13  DEPLOY ONLINE DAS APIs', 1)
+add_body('Para garantir que o sistema funcione 24 horas por dia, sem depender de um computador local ligado, ambas as APIs foram publicadas na plataforma Vercel, um servico gratuito de hospedagem para aplicacoes web.', indent=True)
+
+add_heading_custom('13.1  Configuracao para Deploy', 2)
+add_body('Express.js: A porta do servidor foi alterada de um valor fixo (3000) para uma porta dinamica fornecida pelo ambiente de hospedagem (process.env.PORT). Foi adicionado um arquivo vercel.json para configurar o roteamento e a exportacao do modulo Express.', indent=True)
+add_body('FastAPI: O arquivo requirements.txt foi atualizado com as versoes compativeis das dependencias (supabase 2.28.0, pydantic >= 2.11.7). Foi adicionado um arquivo vercel.json para configurar o deploy Python com o runtime @vercel/python.', indent=True)
+
+add_heading_custom('13.2  URLs dos Servicos Online', 2)
+make_table(
+    ['Servico', 'URL', 'Tecnologia'],
+    [
+        ['API Express.js', 'https://api-express-tau.vercel.app', 'Node.js 22 + Express 4'],
+        ['API FastAPI', 'https://api-fastapi.vercel.app', 'Python 3.12 + FastAPI'],
+        ['Swagger (FastAPI)', 'https://api-fastapi.vercel.app/docs', 'Documentacao automatica'],
+        ['Frontend', 'https://congregafiel.web.app', 'Firebase Hosting'],
+    ]
+)
+
+add_heading_custom('13.3  Variaveis de Ambiente', 2)
+add_body('As credenciais do Supabase (SUPABASE_URL e SUPABASE_SECRET_KEY) foram configuradas como variaveis de ambiente no painel do Vercel, garantindo que dados sensiveis nao fiquem expostos no codigo-fonte.', indent=True)
+
+add_heading_custom('13.4  Deteccao Automatica de Ambiente', 2)
+add_body('O frontend foi configurado para detectar automaticamente o ambiente de execucao. Quando acessado via localhost (desenvolvimento), as requisicoes sao direcionadas para http://localhost:3000. Quando acessado via o dominio de producao (congregafiel.web.app), as requisicoes sao direcionadas para a API no Vercel.', indent=True)
+
+add_heading_custom('13.5  Banco de Dados na Nuvem', 2)
+add_body('As 6 tabelas do sistema (igrejas, membros, eventos, contribuicoes, comunicados e pedidos_oracao) foram criadas no Supabase/PostgreSQL com dados iniciais de exemplo. O banco esta acessivel 24/7 pelas APIs hospedadas no Vercel, sem necessidade de infraestrutura local.', indent=True)
+
+# ==================== 14 PROXIMOS PASSOS ====================
+add_heading_custom('14  PROXIMOS PASSOS (SPRINT 3)', 1)
 add_body('Para a Sprint 3 (10 a 16 de marco de 2026), estao previstas as seguintes atividades:', indent=True)
 add_bullet('Testes funcionais completos dos endpoints com dados reais no Supabase;')
 add_bullet('Refinamento da interface do usuario nos paineis de igreja e membro;')
 add_bullet('Validacoes avancadas nos formularios do front-end;')
-add_bullet('Deploy das APIs em servico de hospedagem (Railway, Render ou similar);')
 add_bullet('Implementacao de notificacoes em tempo real;')
 add_bullet('Melhorias na experiencia do usuario (UX) baseadas em testes de usabilidade.')
 
-# ==================== 14 CONSIDERACOES FINAIS ====================
-add_heading_custom('14  CONSIDERACOES FINAIS', 1)
+# ==================== 15 CONSIDERACOES FINAIS ====================
+add_heading_custom('15  CONSIDERACOES FINAIS', 1)
 add_body('A Sprint 2 representou um avanco significativo na maturidade tecnica do projeto Congrega Fiel. O sistema deixou de funcionar apenas localmente e passou a ter uma infraestrutura completa de producao, com hospedagem online (Firebase Hosting), banco de dados relacional na nuvem (Supabase/PostgreSQL) e duas APIs REST funcionais conectadas a esse banco.', indent=True)
 add_body('A criacao do banco de dados com Supabase trouxe persistencia real ao sistema, com 6 tabelas relacionais, chaves estrangeiras com exclusao em cascata, indices de performance, triggers automaticos e Row Level Security. O schema SQL foi projetado seguindo boas praticas de modelagem relacional.', indent=True)
 add_body('A implementacao de duas Web APIs REST (Express.js e FastAPI), ambas conectadas ao mesmo banco Supabase, demonstra a versatilidade da equipe no uso de diferentes linguagens e frameworks. O Express.js mostrou-se eficiente e direto para criacao de APIs em JavaScript, enquanto o FastAPI trouxe beneficios em validacao automatica (Pydantic) e documentacao integrada (Swagger/ReDoc).', indent=True)
@@ -757,6 +784,7 @@ refs = [
     'FIELDING, R. T. Architectural Styles and the Design of Network-based Software Architectures. Dissertacao (Doutorado) - University of California, Irvine, 2000.',
     'PRESSMAN, R. S.; MAXIM, B. R. Engenharia de software: uma abordagem profissional. 9. ed. Porto Alegre: AMGH, 2021.',
     'SOMMERVILLE, I. Engenharia de software. 10. ed. Sao Paulo: Pearson, 2019.',
+    'VERCEL. Vercel - Develop. Preview. Ship. Disponivel em: https://vercel.com/docs. Acesso em: 03 mar. 2026.',
 ]
 for ref in refs:
     p = doc.add_paragraph()
