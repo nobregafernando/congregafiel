@@ -77,9 +77,6 @@
 
       SessaoServico.salvar(sessao);
 
-      // Sincronizar dados do Supabase para localStorage
-      await ApiServico.sincronizarDados(sessao.igrejaId);
-
       UIServico.mostrarToast("Login realizado com sucesso!", "success");
 
       setTimeout(() => {
