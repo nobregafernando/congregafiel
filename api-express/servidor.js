@@ -806,17 +806,23 @@ app.get("/", (req, res) => {
 });
 
 // -------------------- Iniciar Servidor --------------------
-app.listen(PORTA, () => {
-  console.log(`CongregaFiel API (Express + Supabase) rodando na porta ${PORTA}`);
-  console.log("Endpoints disponíveis:");
-  console.log("  POST   /api/auth/registrar-igreja");
-  console.log("  POST   /api/auth/registrar-membro");
-  console.log("  POST   /api/auth/login");
-  console.log("  POST   /api/auth/recuperar-senha");
-  console.log("  GET    /api/igrejas");
-  console.log("  GET    /api/membros");
-  console.log("  GET    /api/eventos");
-  console.log("  GET    /api/contribuicoes");
-  console.log("  GET    /api/comunicados");
-  console.log("  GET    /api/pedidos-oracao");
-});
+// Em ambiente local, inicia o servidor normalmente
+// No Vercel, o módulo é importado como serverless function
+if (process.env.VERCEL !== "1") {
+  app.listen(PORTA, () => {
+    console.log(`CongregaFiel API (Express + Supabase) rodando na porta ${PORTA}`);
+    console.log("Endpoints disponíveis:");
+    console.log("  POST   /api/auth/registrar-igreja");
+    console.log("  POST   /api/auth/registrar-membro");
+    console.log("  POST   /api/auth/login");
+    console.log("  POST   /api/auth/recuperar-senha");
+    console.log("  GET    /api/igrejas");
+    console.log("  GET    /api/membros");
+    console.log("  GET    /api/eventos");
+    console.log("  GET    /api/contribuicoes");
+    console.log("  GET    /api/comunicados");
+    console.log("  GET    /api/pedidos-oracao");
+  });
+}
+
+module.exports = app;

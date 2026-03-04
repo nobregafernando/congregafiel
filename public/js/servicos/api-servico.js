@@ -2,10 +2,10 @@
 const ApiServico = (() => {
   "use strict";
 
-  // Em produção usa a API no Render; em desenvolvimento usa localhost
+  // Em produção usa a API no Vercel; em desenvolvimento usa localhost
   const BASE_URL = window.location.hostname === "localhost"
     ? "http://localhost:3000"
-    : "https://congregafiel-express.onrender.com";
+    : "https://api-express-tau.vercel.app";
 
   async function request(metodo, caminho, corpo) {
     const opcoes = {
