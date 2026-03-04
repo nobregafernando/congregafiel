@@ -1,0 +1,85 @@
+{
+  "igrejas": [
+    {
+      "id": 1,
+      "nome": "Igreja Batista Central",
+      "endereco": "Rua das Flores, 123 - Campo Grande/MS",
+      "descricao": "Comunidade acolhedora no coração da cidade",
+      "pastor_id": 1,
+      "criado_em": "2026-02-24T10:00:00Z"
+    }
+  ],
+  "membros": [
+    {
+      "id": 1,
+      "nome": "Pastor João Silva",
+      "email": "joao@email.com",
+      "telefone": "(67) 99999-0001",
+      "tipo": "pastor",
+      "igreja_id": 1,
+      "criado_em": "2026-02-24T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "nome": "Maria Santos",
+      "email": "maria@email.com",
+      "telefone": "(67) 99999-0002",
+      "tipo": "membro",
+      "igreja_id": 1,
+      "criado_em": "2026-02-25T08:00:00Z"
+    },
+    {
+      "id": 3,
+      "nome": "Carlos Oliveira",
+      "email": "carlos@email.com",
+      "telefone": "(67) 99999-0003",
+      "tipo": "membro",
+      "igreja_id": 1,
+      "criado_em": "2026-02-26T09:30:00Z"
+    }
+  ],
+  "eventos": [
+    {
+      "id": 1,
+      "titulo": "Culto de Domingo",
+      "descricao": "Culto dominical com louvor e pregação",
+      "data": "2026-03-09",
+      "horario": "09:00",
+      "local": "Templo Principal",
+      "igreja_id": 1,
+      "criado_em": "2026-03-01T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "titulo": "Estudo Bíblico",
+      "descricao": "Estudo sobre o livro de Romanos",
+      "data": "2026-03-12",
+      "horario": "19:30",
+      "local": "Salão de Estudos",
+      "igreja_id": 1,
+      "criado_em": "2026-03-01T10:30:00Z"
+    }
+  ],
+  "contribuicoes": [
+    {
+      "id": 1,
+      "membro_id": 2,
+      "igreja_id": 1,
+      "tipo": "dizimo",
+      "valor": 150.00,
+      "data": "2026-03-02",
+      "descricao": "Dízimo mensal",
+      "criado_em": "2026-03-02T11:00:00Z"
+    },
+    {
+      "id": 2,
+      "membro_id": 3,
+      "igreja_id": 1,
+      "tipo": "oferta",
+      "valor": 50.00,
+      "data": "2026-03-02",
+      "descricao": "Oferta voluntária",
+      "criado_em": "2026-03-02T11:15:00Z"
+    }
+  ]
+}

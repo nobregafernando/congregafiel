@@ -1,0 +1,23 @@
+{
+  "name": "congregafiel",
+  "version": "1.0.0",
+  "description": "**Sistema Web para Gestao de Comunidades Eclesiasticas**",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nobregafernando/congregafiel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nobregafernando/congregafiel/issues"
+  },
+  "homepage": "https://github.com/nobregafernando/congregafiel#readme",
+  "dependencies": {
+    "firebase": "^12.10.0"
+  }
+}

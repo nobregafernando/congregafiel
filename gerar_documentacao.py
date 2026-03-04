@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Script para gerar a documentação ABNT do projeto Congrega Fiel em Word (.docx)
-Faculdade INSTED - Campo Grande/MS - Curso Superior
+Documentação ABNT — Congrega Fiel (MVP)
+Faculdade INSTED · Campo Grande/MS · Design comercial
 """
 
 from docx import Document
-from docx.shared import Pt, Cm, RGBColor
+from docx.shared import Pt, Cm, RGBColor, Emu
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml.ns import qn, nsdecls
@@ -13,361 +13,407 @@ from docx.oxml import parse_xml, OxmlElement
 import os
 
 # ============================================================
-# CONFIGURAÇÕES
+# PALETA COMERCIAL
+# ============================================================
+CLR_PRIMARY   = "1B2A4A"   # azul marinho profundo
+CLR_ACCENT    = "C5A55A"   # dourado elegante
+CLR_LIGHT_BG  = "F0EDE6"   # creme claro (zebra rows)
+CLR_WHITE     = "FFFFFF"
+CLR_DARK_TEXT = "1B2A4A"
+CLR_MID_GRAY  = "6B7280"
+CLR_LIGHT_LN  = "D4C99E"   # dourado claro (linhas)
+CLR_TABLE_HDR = "1B2A4A"   # header tabela
+
+# ============================================================
+# CONFIG GERAL
 # ============================================================
 FONT_NAME = "Times New Roman"
-FONT_SIZE_BODY = 12
-FONT_SIZE_TITLE = 14
-FONT_SIZE_COVER = 16
-LINE_SPACING = 1.5
+SZ = 12          # corpo
+SZ_TITLE = 14
+SZ_COVER = 16
+SZ_BIG = 28
+LSPACING = 1.5
 
-INSTITUICAO = "FACULDADE INSTED"
+INST  = "FACULDADE INSTED"
 CURSO = "Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas"
-CIDADE = "Campo Grande – MS"
-ANO = "2026"
+CITY  = "Campo Grande \u2013 MS"
+YEAR  = "2026"
 
 doc = Document()
 
-# ============================================================
-# CONFIGURAÇÃO DE MARGENS ABNT (3cm sup/esq, 2cm inf/dir)
-# ============================================================
-for section in doc.sections:
-    section.top_margin = Cm(3)
-    section.bottom_margin = Cm(2)
-    section.left_margin = Cm(3)
-    section.right_margin = Cm(2)
-    section.page_height = Cm(29.7)
-    section.page_width = Cm(21)
+# Margens ABNT
+for sec in doc.sections:
+    sec.top_margin    = Cm(3)
+    sec.bottom_margin = Cm(2)
+    sec.left_margin   = Cm(3)
+    sec.right_margin  = Cm(2)
+    sec.page_height   = Cm(29.7)
+    sec.page_width    = Cm(21)
+
+# Auto-update fields (sumário)
+uf = OxmlElement("w:updateFields")
+uf.set(qn("w:val"), "true")
+doc.settings.element.append(uf)
 
 # ============================================================
-# FORÇAR ATUALIZAÇÃO AUTOMÁTICA DE CAMPOS (para o sumário)
+# ESTILOS BASE
 # ============================================================
-settings = doc.settings.element
-update_fields = OxmlElement("w:updateFields")
-update_fields.set(qn("w:val"), "true")
-settings.append(update_fields)
-
-# ============================================================
-# ESTILOS
-# ============================================================
-style_normal = doc.styles["Normal"]
-style_normal.font.name = FONT_NAME
-style_normal.font.size = Pt(FONT_SIZE_BODY)
-style_normal.font.color.rgb = RGBColor(0, 0, 0)
-style_normal.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-style_normal.paragraph_format.line_spacing = LINE_SPACING
-style_normal.paragraph_format.space_after = Pt(0)
-style_normal.paragraph_format.space_before = Pt(0)
-
-# Forçar fonte padrão via XML
-rPr = style_normal.element.get_or_add_rPr()
-rFonts_el = parse_xml(
+sn = doc.styles["Normal"]
+sn.font.name = FONT_NAME
+sn.font.size = Pt(SZ)
+sn.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
+sn.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+sn.paragraph_format.line_spacing = LSPACING
+sn.paragraph_format.space_after  = Pt(0)
+sn.paragraph_format.space_before = Pt(0)
+rPr = sn.element.get_or_add_rPr()
+rPr.append(parse_xml(
     f'<w:rFonts {nsdecls("w")} w:ascii="{FONT_NAME}" '
     f'w:hAnsi="{FONT_NAME}" w:cs="{FONT_NAME}" w:eastAsia="{FONT_NAME}"/>'
-)
-rPr.append(rFonts_el)
+))
 
-# --- Configurar estilos de Heading para o sumário automático ---
-for level, style_name in enumerate(["Heading 1", "Heading 2", "Heading 3"], start=1):
-    h_style = doc.styles[style_name]
-    h_style.font.name = FONT_NAME
-    h_style.font.size = Pt(FONT_SIZE_BODY)
-    h_style.font.color.rgb = RGBColor(0, 0, 0)
-    h_style.paragraph_format.line_spacing = LINE_SPACING
-    h_style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    h_style.paragraph_format.space_before = Pt(18 if level == 1 else 12 if level == 2 else 8)
-    h_style.paragraph_format.space_after = Pt(12 if level == 1 else 6 if level == 2 else 4)
-    h_style.paragraph_format.first_line_indent = Cm(0)
-    h_style.paragraph_format.left_indent = Cm(0)
-    # Heading 1: bold, uppercase será feito no texto
-    # Heading 2: bold
-    # Heading 3: italic, não bold
-    h_style.font.bold = level <= 2
-    h_style.font.italic = level == 3
-    # Remover numeração/bullet automático dos headings
-    pPr = h_style.element.get_or_add_pPr()
-    numPr = pPr.find(qn("w:numPr"))
-    if numPr is not None:
-        pPr.remove(numPr)
-    # Forçar fonte via XML no heading
-    h_rPr = h_style.element.get_or_add_rPr()
-    h_rFonts = parse_xml(
+# Heading styles (para TOC)
+for lvl, name in enumerate(["Heading 1", "Heading 2", "Heading 3"], 1):
+    hs = doc.styles[name]
+    hs.font.name = FONT_NAME
+    hs.font.size = Pt(SZ)
+    hs.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
+    hs.font.bold = lvl <= 2
+    hs.font.italic = lvl == 3
+    hs.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    hs.paragraph_format.line_spacing = LSPACING
+    hs.paragraph_format.space_before = Pt(18 if lvl == 1 else 12 if lvl == 2 else 8)
+    hs.paragraph_format.space_after  = Pt(6 if lvl == 1 else 4)
+    hs.paragraph_format.first_line_indent = Cm(0)
+    hs.paragraph_format.left_indent = Cm(0)
+    pPr = hs.element.get_or_add_pPr()
+    num = pPr.find(qn("w:numPr"))
+    if num is not None:
+        pPr.remove(num)
+    hrPr = hs.element.get_or_add_rPr()
+    hrPr.append(parse_xml(
         f'<w:rFonts {nsdecls("w")} w:ascii="{FONT_NAME}" '
         f'w:hAnsi="{FONT_NAME}" w:cs="{FONT_NAME}" w:eastAsia="{FONT_NAME}"/>'
-    )
-    h_rPr.append(h_rFonts)
-    # Cor preta explícita
-    color_el = parse_xml(f'<w:color {nsdecls("w")} w:val="000000"/>')
-    h_rPr.append(color_el)
-
+    ))
+    hrPr.append(parse_xml(f'<w:color {nsdecls("w")} w:val="{CLR_PRIMARY}"/>'))
 
 # ============================================================
-# FUNÇÕES AUXILIARES
+# HELPERS
 # ============================================================
-def add_empty_paragraphs(count=1):
-    for _ in range(count):
+def blank(n=1):
+    for _ in range(n):
         p = doc.add_paragraph()
         p.paragraph_format.space_after = Pt(0)
         p.paragraph_format.space_before = Pt(0)
-        run = p.add_run()
-        run.font.size = Pt(FONT_SIZE_BODY)
-        run.font.name = FONT_NAME
+        r = p.add_run(); r.font.size = Pt(SZ); r.font.name = FONT_NAME
 
-
-def add_centered_text(text, size=FONT_SIZE_BODY, bold=False, upper=False):
+def centered(text, size=SZ, bold=False, upper=False, color=CLR_DARK_TEXT):
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.space_after = Pt(0)
     p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.line_spacing = LINE_SPACING
-    run = p.add_run(text.upper() if upper else text)
-    run.font.size = Pt(size)
-    run.font.name = FONT_NAME
-    run.bold = bold
+    p.paragraph_format.line_spacing = LSPACING
+    r = p.add_run(text.upper() if upper else text)
+    r.font.size = Pt(size); r.font.name = FONT_NAME; r.bold = bold
+    r.font.color.rgb = RGBColor(int(color[:2],16), int(color[2:4],16), int(color[4:],16))
     return p
 
-
-def add_justified_text(text, size=FONT_SIZE_BODY, bold=False, indent_first=True):
+def body(text, size=SZ, bold=False, indent=True):
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     p.paragraph_format.space_after = Pt(6)
     p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.line_spacing = LINE_SPACING
-    if indent_first:
+    p.paragraph_format.line_spacing = LSPACING
+    if indent:
         p.paragraph_format.first_line_indent = Cm(1.25)
-    run = p.add_run(text)
-    run.font.size = Pt(size)
-    run.font.name = FONT_NAME
-    run.bold = bold
+    r = p.add_run(text)
+    r.font.size = Pt(size); r.font.name = FONT_NAME; r.bold = bold
+    r.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
     return p
 
+def colored_line(color=CLR_ACCENT, thickness=12):
+    """Linha horizontal colorida decorativa."""
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(4)
+    pPr = p._element.get_or_add_pPr()
+    pPr.append(parse_xml(
+        f'<w:pBdr {nsdecls("w")}>'
+        f'  <w:bottom w:val="single" w:sz="{thickness}" w:space="1" w:color="{color}"/>'
+        f'</w:pBdr>'
+    ))
 
-def add_section_title(number, title):
-    """Título de seção usando Heading 1 (aparece no sumário automático)"""
+def section_h1(number, title):
+    """Heading 1 com linha dourada embaixo."""
     text = f"{number}  {title.upper()}" if number else title.upper()
     p = doc.add_paragraph(text, style="Heading 1")
-    # Garantir formatação
-    for run in p.runs:
-        run.font.size = Pt(FONT_SIZE_BODY)
-        run.font.name = FONT_NAME
-        run.bold = True
-        run.font.color.rgb = RGBColor(0, 0, 0)
+    for r in p.runs:
+        r.font.size = Pt(SZ); r.font.name = FONT_NAME; r.bold = True
+        r.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
+    # Borda inferior dourada no parágrafo
+    pPr = p._element.get_or_add_pPr()
+    pPr.append(parse_xml(
+        f'<w:pBdr {nsdecls("w")}>'
+        f'  <w:bottom w:val="single" w:sz="8" w:space="2" w:color="{CLR_ACCENT}"/>'
+        f'</w:pBdr>'
+    ))
     return p
 
-
-def add_subsection_title(number, title):
-    """Subtítulo usando Heading 2 (aparece no sumário automático)"""
+def section_h2(number, title):
     p = doc.add_paragraph(f"{number}  {title}", style="Heading 2")
-    for run in p.runs:
-        run.font.size = Pt(FONT_SIZE_BODY)
-        run.font.name = FONT_NAME
-        run.bold = True
-        run.font.color.rgb = RGBColor(0, 0, 0)
+    for r in p.runs:
+        r.font.size = Pt(SZ); r.font.name = FONT_NAME; r.bold = True
+        r.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
     return p
 
-
-def add_subsubsection_title(number, title):
-    """Sub-subtítulo usando Heading 3 (aparece no sumário automático)"""
+def section_h3(number, title):
     p = doc.add_paragraph(f"{number}  {title}", style="Heading 3")
-    for run in p.runs:
-        run.font.size = Pt(FONT_SIZE_BODY)
-        run.font.name = FONT_NAME
-        run.bold = False
-        run.italic = True
-        run.font.color.rgb = RGBColor(0, 0, 0)
+    for r in p.runs:
+        r.font.size = Pt(SZ); r.font.name = FONT_NAME
+        r.bold = False; r.italic = True
+        r.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
     return p
 
-
-def add_bullet_item(text, level=0):
+def bullet(text, level=0):
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    p.paragraph_format.space_after = Pt(2)
+    p.paragraph_format.space_after = Pt(3)
     p.paragraph_format.space_before = Pt(2)
-    p.paragraph_format.line_spacing = LINE_SPACING
-    indent = 1.25 + (level * 0.75)
-    p.paragraph_format.left_indent = Cm(indent)
+    p.paragraph_format.line_spacing = LSPACING
+    ind = 1.25 + (level * 0.75)
+    p.paragraph_format.left_indent = Cm(ind)
     p.paragraph_format.first_line_indent = Cm(-0.5)
-    bullet = "\u2022" if level == 0 else "\u25E6"
-    run = p.add_run(f"{bullet}  {text}")
-    run.font.size = Pt(FONT_SIZE_BODY)
-    run.font.name = FONT_NAME
+    sym = "\u2022" if level == 0 else "\u25E6"
+    r = p.add_run(f"{sym}  {text}")
+    r.font.size = Pt(SZ); r.font.name = FONT_NAME
+    r.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
     return p
 
+def table(headers, rows, col_widths=None):
+    t = doc.add_table(rows=1 + len(rows), cols=len(headers))
+    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    t.style = "Table Grid"
 
-def add_table(headers, rows, col_widths=None):
-    table = doc.add_table(rows=1 + len(rows), cols=len(headers))
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    table.style = "Table Grid"
+    # Cabeçalho — fundo azul marinho, texto dourado
+    for i, h in enumerate(headers):
+        c = t.rows[0].cells[i]
+        c.text = ""
+        pp = c.paragraphs[0]
+        pp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        pp.paragraph_format.space_before = Pt(4)
+        pp.paragraph_format.space_after  = Pt(4)
+        rr = pp.add_run(h)
+        rr.font.size = Pt(10); rr.font.name = FONT_NAME; rr.bold = True
+        rr.font.color.rgb = RGBColor(0xC5, 0xA5, 0x5A)  # dourado
+        c._element.get_or_add_tcPr().append(
+            parse_xml(f'<w:shd {nsdecls("w")} w:fill="{CLR_TABLE_HDR}" w:val="clear"/>')
+        )
 
-    # Cabeçalho
-    for i, header in enumerate(headers):
-        cell = table.rows[0].cells[i]
-        cell.text = ""
-        p = cell.paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_before = Pt(2)
-        p.paragraph_format.space_after = Pt(2)
-        run = p.add_run(header)
-        run.font.size = Pt(10)
-        run.font.name = FONT_NAME
-        run.bold = True
-        # Cor de fundo do cabeçalho
-        shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="2C3E50" w:val="clear"/>')
-        cell._element.get_or_add_tcPr().append(shading)
-        run.font.color.rgb = RGBColor(255, 255, 255)
+    # Dados — zebra creme
+    for ri, row in enumerate(rows):
+        for ci, val in enumerate(row):
+            c = t.rows[ri + 1].cells[ci]
+            c.text = ""
+            pp = c.paragraphs[0]
+            pp.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            pp.paragraph_format.space_before = Pt(3)
+            pp.paragraph_format.space_after  = Pt(3)
+            rr = pp.add_run(str(val))
+            rr.font.size = Pt(10); rr.font.name = FONT_NAME
+            rr.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
+            if ri % 2 == 0:
+                c._element.get_or_add_tcPr().append(
+                    parse_xml(f'<w:shd {nsdecls("w")} w:fill="{CLR_WHITE}" w:val="clear"/>')
+                )
+            else:
+                c._element.get_or_add_tcPr().append(
+                    parse_xml(f'<w:shd {nsdecls("w")} w:fill="{CLR_LIGHT_BG}" w:val="clear"/>')
+                )
 
-    # Dados
-    for r, row_data in enumerate(rows):
-        for c, cell_text in enumerate(row_data):
-            cell = table.rows[r + 1].cells[c]
-            cell.text = ""
-            p = cell.paragraphs[0]
-            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-            p.paragraph_format.space_before = Pt(2)
-            p.paragraph_format.space_after = Pt(2)
-            run = p.add_run(str(cell_text))
-            run.font.size = Pt(10)
-            run.font.name = FONT_NAME
-            # Zebra striping
-            if r % 2 == 1:
-                shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="ECF0F1" w:val="clear"/>')
-                cell._element.get_or_add_tcPr().append(shading)
+    # Bordas da tabela — dourado claro
+    tbl = t._tbl
+    tblPr = tbl.tblPr if tbl.tblPr is not None else OxmlElement("w:tblPr")
+    borders = parse_xml(
+        f'<w:tblBorders {nsdecls("w")}>'
+        f'  <w:top    w:val="single" w:sz="4" w:space="0" w:color="{CLR_LIGHT_LN}"/>'
+        f'  <w:left   w:val="single" w:sz="4" w:space="0" w:color="{CLR_LIGHT_LN}"/>'
+        f'  <w:bottom w:val="single" w:sz="4" w:space="0" w:color="{CLR_LIGHT_LN}"/>'
+        f'  <w:right  w:val="single" w:sz="4" w:space="0" w:color="{CLR_LIGHT_LN}"/>'
+        f'  <w:insideH w:val="single" w:sz="4" w:space="0" w:color="{CLR_LIGHT_LN}"/>'
+        f'  <w:insideV w:val="single" w:sz="4" w:space="0" w:color="{CLR_LIGHT_LN}"/>'
+        f'</w:tblBorders>'
+    )
+    tblPr.append(borders)
 
-    # Larguras de coluna
     if col_widths:
-        for i, width in enumerate(col_widths):
-            for row in table.rows:
-                row.cells[i].width = Cm(width)
+        for i, w in enumerate(col_widths):
+            for row in t.rows:
+                row.cells[i].width = Cm(w)
 
-    add_empty_paragraphs(1)
-    return table
+    blank(1)
+    return t
 
-
-def add_toc_field():
-    """Insere um campo de sumário automático do Word (com hyperlinks)."""
+def toc_field():
+    """Sumário automático linkado do Word."""
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    p.paragraph_format.line_spacing = LINE_SPACING
+    p.paragraph_format.line_spacing = LSPACING
 
-    # Campo TOC: \o "1-3" = níveis 1-3, \h = hyperlinks, \z = oculta tab em web, \u = usa outline level
-    run1 = p.add_run()
-    fld_begin = OxmlElement("w:fldChar")
-    fld_begin.set(qn("w:fldCharType"), "begin")
-    run1._element.append(fld_begin)
+    r1 = p.add_run()
+    fc1 = OxmlElement("w:fldChar"); fc1.set(qn("w:fldCharType"), "begin")
+    r1._element.append(fc1)
 
-    run2 = p.add_run()
-    instr = OxmlElement("w:instrText")
-    instr.set(qn("xml:space"), "preserve")
-    instr.text = ' TOC \\o "1-3" \\h \\z \\u '
-    run2._element.append(instr)
+    r2 = p.add_run()
+    ins = OxmlElement("w:instrText"); ins.set(qn("xml:space"), "preserve")
+    ins.text = ' TOC \\o "1-3" \\h \\z \\u '
+    r2._element.append(ins)
 
-    run3 = p.add_run()
-    fld_sep = OxmlElement("w:fldChar")
-    fld_sep.set(qn("w:fldCharType"), "separate")
-    run3._element.append(fld_sep)
+    r3 = p.add_run()
+    fc2 = OxmlElement("w:fldChar"); fc2.set(qn("w:fldCharType"), "separate")
+    r3._element.append(fc2)
 
-    # Texto placeholder que será substituído ao abrir no Word
-    run4 = p.add_run(
-        "[Sumário automático — ao abrir no Word, clique aqui e pressione F9 "
-        "ou clique com botão direito > Atualizar campo]"
-    )
-    run4.font.size = Pt(FONT_SIZE_BODY)
-    run4.font.name = FONT_NAME
-    run4.font.color.rgb = RGBColor(128, 128, 128)
-    run4.italic = True
+    r4 = p.add_run("Abra no Word e pressione F9 para gerar o sumário linkado.")
+    r4.font.size = Pt(SZ); r4.font.name = FONT_NAME
+    r4.font.color.rgb = RGBColor(0x6B, 0x72, 0x80); r4.italic = True
 
-    run5 = p.add_run()
-    fld_end = OxmlElement("w:fldChar")
-    fld_end.set(qn("w:fldCharType"), "end")
-    run5._element.append(fld_end)
+    r5 = p.add_run()
+    fc3 = OxmlElement("w:fldChar"); fc3.set(qn("w:fldCharType"), "end")
+    r5._element.append(fc3)
 
-    return p
-
-
-def add_page_break():
+def page_break():
     doc.add_page_break()
 
+def cover_band(color, height_cm=1.2):
+    """Faixa colorida horizontal (simulada com tabela de 1 célula)."""
+    t = doc.add_table(rows=1, cols=1)
+    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    cell = t.rows[0].cells[0]
+    cell.text = ""
+    cell.height = Cm(height_cm)
+    # Fundo
+    cell._element.get_or_add_tcPr().append(
+        parse_xml(f'<w:shd {nsdecls("w")} w:fill="{color}" w:val="clear"/>')
+    )
+    # Sem bordas
+    tbl = t._tbl
+    tblPr = tbl.tblPr if tbl.tblPr is not None else OxmlElement("w:tblPr")
+    tblPr.append(parse_xml(
+        f'<w:tblBorders {nsdecls("w")}>'
+        f'  <w:top    w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
+        f'  <w:left   w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
+        f'  <w:bottom w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
+        f'  <w:right  w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
+        f'  <w:insideH w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
+        f'  <w:insideV w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
+        f'</w:tblBorders>'
+    ))
+    # Largura total
+    tblPr.append(parse_xml(
+        f'<w:tblW {nsdecls("w")} w:w="5000" w:type="pct"/>'
+    ))
 
 # ============================================================
-# CAPA
+#                       CAPA COMERCIAL
 # ============================================================
-add_empty_paragraphs(2)
-add_centered_text(INSTITUICAO, size=FONT_SIZE_COVER, bold=True, upper=True)
-add_empty_paragraphs(1)
-add_centered_text(CURSO, size=FONT_SIZE_TITLE, bold=False)
-add_empty_paragraphs(6)
-add_centered_text("CONGREGA FIEL", size=20, bold=True, upper=True)
-add_centered_text("Sistema Web para Gestão de Comunidades Eclesiásticas", size=FONT_SIZE_TITLE, bold=False)
-add_empty_paragraphs(4)
-add_centered_text("Catieli Gama Cora", size=FONT_SIZE_BODY)
-add_centered_text("Fernando Alves da Nóbrega", size=FONT_SIZE_BODY)
-add_centered_text("Gabriel Franklin Barcellos", size=FONT_SIZE_BODY)
-add_centered_text("Jhenniffer Lopes da Silva Vargas", size=FONT_SIZE_BODY)
-add_centered_text("João Pedro Aranda", size=FONT_SIZE_BODY)
-add_empty_paragraphs(6)
-add_centered_text(CIDADE, size=FONT_SIZE_BODY)
-add_centered_text(ANO, size=FONT_SIZE_BODY)
+blank(1)
+cover_band(CLR_PRIMARY, 0.6)
+blank(1)
+centered(INST, size=SZ_COVER, bold=True, upper=True, color=CLR_PRIMARY)
+colored_line(CLR_ACCENT, 6)
+centered(CURSO, size=11, bold=False, color=CLR_MID_GRAY)
+blank(4)
+centered("CONGREGA FIEL", size=SZ_BIG, bold=True, upper=True, color=CLR_PRIMARY)
+blank(1)
+# Linha dourada grossa
+colored_line(CLR_ACCENT, 18)
+blank(1)
+centered("Sistema Web para Gestão de", size=SZ_TITLE, bold=False, color=CLR_MID_GRAY)
+centered("Comunidades Eclesiásticas", size=SZ_TITLE, bold=False, color=CLR_MID_GRAY)
+blank(3)
+
+# Nomes com estilo
+for nome in [
+    "Catieli Gama Cora",
+    "Fernando Alves da Nóbrega",
+    "Gabriel Franklin Barcellos",
+    "Jhenniffer Lopes da Silva Vargas",
+    "João Pedro Aranda",
+]:
+    centered(nome, size=SZ, bold=False, color=CLR_PRIMARY)
+
+blank(4)
+cover_band(CLR_ACCENT, 0.15)
+blank(1)
+centered(CITY, size=SZ, bold=False, color=CLR_MID_GRAY)
+centered(YEAR, size=SZ, bold=True, color=CLR_PRIMARY)
 
 # ============================================================
-# FOLHA DE ROSTO
+#                    FOLHA DE ROSTO
 # ============================================================
-add_page_break()
-add_empty_paragraphs(2)
-add_centered_text("CONGREGA FIEL", size=20, bold=True, upper=True)
-add_centered_text("Sistema Web para Gestão de Comunidades Eclesiásticas", size=FONT_SIZE_TITLE, bold=False)
-add_empty_paragraphs(4)
+page_break()
+blank(2)
+centered("CONGREGA FIEL", size=22, bold=True, upper=True, color=CLR_PRIMARY)
+colored_line(CLR_ACCENT, 10)
+centered("Sistema Web para Gestão de Comunidades Eclesiásticas",
+         size=SZ_TITLE, bold=False, color=CLR_MID_GRAY)
+blank(4)
 
-# Texto descritivo (recuado à direita, conforme ABNT)
 p = doc.add_paragraph()
 p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 p.paragraph_format.left_indent = Cm(8)
 p.paragraph_format.space_after = Pt(0)
 p.paragraph_format.line_spacing = 1.0
-run = p.add_run(
+r = p.add_run(
     f"Documentação técnica do Produto Mínimo Viável (MVP) apresentada como "
-    f"requisito parcial para aprovação no {CURSO} da {INSTITUICAO}."
+    f"requisito parcial para aprovação no {CURSO} da {INST}."
 )
-run.font.size = Pt(10)
-run.font.name = FONT_NAME
+r.font.size = Pt(10); r.font.name = FONT_NAME
+r.font.color.rgb = RGBColor(0x6B, 0x72, 0x80)
 
-add_empty_paragraphs(3)
+blank(3)
+centered("Equipe de Desenvolvimento", size=SZ, bold=True, color=CLR_PRIMARY)
+colored_line(CLR_ACCENT, 4)
+blank(1)
+for nome in [
+    "Catieli Gama Cora",
+    "Fernando Alves da Nóbrega",
+    "Gabriel Franklin Barcellos",
+    "Jhenniffer Lopes da Silva Vargas",
+    "João Pedro Aranda",
+]:
+    centered(nome, size=SZ, color=CLR_PRIMARY)
 
-add_centered_text("Equipe de Desenvolvimento:", size=FONT_SIZE_BODY, bold=True)
-add_empty_paragraphs(1)
-add_centered_text("Catieli Gama Cora", size=FONT_SIZE_BODY)
-add_centered_text("Fernando Alves da Nóbrega", size=FONT_SIZE_BODY)
-add_centered_text("Gabriel Franklin Barcellos", size=FONT_SIZE_BODY)
-add_centered_text("Jhenniffer Lopes da Silva Vargas", size=FONT_SIZE_BODY)
-add_centered_text("João Pedro Aranda", size=FONT_SIZE_BODY)
-
-add_empty_paragraphs(6)
-add_centered_text(CIDADE, size=FONT_SIZE_BODY)
-add_centered_text(ANO, size=FONT_SIZE_BODY)
-
-# ============================================================
-# SUMÁRIO (automático e linkado)
-# ============================================================
-add_page_break()
-add_centered_text("SUMÁRIO", size=FONT_SIZE_TITLE, bold=True, upper=True)
-add_empty_paragraphs(1)
-add_toc_field()
+blank(5)
+cover_band(CLR_ACCENT, 0.1)
+blank(1)
+centered(CITY, size=SZ, color=CLR_MID_GRAY)
+centered(YEAR, size=SZ, bold=True, color=CLR_PRIMARY)
 
 # ============================================================
-# 1. INTRODUÇÃO
+#                       SUMÁRIO
 # ============================================================
-add_page_break()
-add_section_title("1", "INTRODUÇÃO")
+page_break()
+centered("SUMÁRIO", size=SZ_TITLE, bold=True, upper=True, color=CLR_PRIMARY)
+colored_line(CLR_ACCENT, 8)
+blank(1)
+toc_field()
 
-add_justified_text(
+# ============================================================
+# 1  INTRODUÇÃO
+# ============================================================
+page_break()
+section_h1("1", "INTRODUÇÃO")
+
+body(
     "O presente documento descreve a documentação técnica inicial do projeto "
     "Congrega Fiel, um sistema web desenvolvido como Produto Mínimo Viável (MVP) "
     "com o objetivo de oferecer uma solução tecnológica para a gestão de comunidades "
     f"eclesiásticas. O projeto foi concebido no âmbito do {CURSO} "
-    f"da {INSTITUICAO} e visa atender a uma demanda real identificada no "
+    f"da {INST} e visa atender a uma demanda real identificada no "
     "cotidiano de igrejas e comunidades religiosas."
 )
 
-add_justified_text(
+body(
     "A gestão de uma comunidade religiosa envolve uma série de atividades "
     "administrativas e pastorais que, em muitos casos, ainda são realizadas de forma "
     "manual ou descentralizada. O cadastro de membros, o controle de contribuições "
@@ -376,7 +422,7 @@ add_justified_text(
     "ou perda de informações."
 )
 
-add_justified_text(
+body(
     "Nesse contexto, o Congrega Fiel surge como uma plataforma digital que centraliza "
     "essas atividades em um único ambiente web, proporcionando praticidade, segurança "
     "e transparência na administração eclesiástica. O sistema funciona como uma espécie "
@@ -386,7 +432,7 @@ add_justified_text(
     "e comunicados."
 )
 
-add_justified_text(
+body(
     "Este documento apresenta o escopo do MVP, os requisitos funcionais e não "
     "funcionais, as tecnologias selecionadas, a arquitetura proposta, a definição "
     "de papéis da equipe e o cronograma de desenvolvimento, servindo como base "
@@ -394,586 +440,417 @@ add_justified_text(
 )
 
 # ============================================================
-# 2. PROBLEMA IDENTIFICADO
+# 2  PROBLEMA IDENTIFICADO
 # ============================================================
-add_page_break()
-add_section_title("2", "PROBLEMA IDENTIFICADO")
+page_break()
+section_h1("2", "PROBLEMA IDENTIFICADO")
 
-add_justified_text(
+body(
     "As comunidades religiosas, especialmente igrejas de pequeno e médio porte, "
     "enfrentam desafios significativos na gestão de suas atividades administrativas "
-    "e pastorais. A partir de pesquisas informais e da vivência dos membros da equipe "
-    "de desenvolvimento, foram identificados os seguintes problemas recorrentes:"
+    "e pastorais. Foram identificados os seguintes problemas recorrentes:"
 )
 
-problemas = [
+for prob in [
     "Gestão manual de membros: o cadastro e o acompanhamento dos fiéis são realizados "
-    "em planilhas, cadernos ou sistemas genéricos que não atendem às necessidades "
-    "específicas de uma comunidade religiosa, resultando em dados desatualizados, "
+    "em planilhas, cadernos ou sistemas genéricos, resultando em dados desatualizados, "
     "duplicados ou perdidos.",
 
     "Controle financeiro precário: as contribuições (dízimos, ofertas e doações) "
-    "são registradas de forma manual, sem padronização, dificultando a prestação "
-    "de contas e a transparência junto aos membros da igreja.",
+    "são registradas sem padronização, dificultando a prestação de contas.",
 
-    "Comunicação fragmentada: a divulgação de eventos, cultos, reuniões e comunicados "
-    "depende de grupos em redes sociais genéricas (WhatsApp, Facebook), que misturam "
-    "informações pessoais com as da igreja, gerando ruído e perda de informações "
-    "importantes.",
+    "Comunicação fragmentada: a divulgação de eventos e comunicados depende de "
+    "redes sociais genéricas, gerando ruído e perda de informações.",
 
-    "Ausência de centralização: não existe uma plataforma unificada que permita ao "
-    "pastor ou líder religioso gerenciar todos os aspectos da comunidade — membros, "
-    "finanças, eventos e comunicação — em um único lugar.",
+    "Ausência de centralização: não existe uma plataforma unificada para gerenciar "
+    "membros, finanças, eventos e comunicação em um único lugar.",
 
-    "Falta de privacidade: o uso de redes sociais públicas para comunicação interna "
-    "da igreja expõe informações sensíveis da comunidade, como dados pessoais dos "
-    "membros e informações financeiras.",
-]
+    "Falta de privacidade: o uso de redes sociais públicas expõe informações "
+    "sensíveis da comunidade.",
+]:
+    bullet(prob)
 
-for prob in problemas:
-    add_bullet_item(prob)
-
-add_justified_text(
+body(
     "Diante desse cenário, evidencia-se a necessidade de uma ferramenta digital "
-    "específica que atenda às particularidades da gestão eclesiástica, promovendo "
-    "organização, eficiência e privacidade."
+    "específica que atenda às particularidades da gestão eclesiástica."
 )
 
 # ============================================================
-# 3. SOLUÇÃO PROPOSTA
+# 3  SOLUÇÃO PROPOSTA
 # ============================================================
-add_page_break()
-add_section_title("3", "SOLUÇÃO PROPOSTA")
+page_break()
+section_h1("3", "SOLUÇÃO PROPOSTA")
 
-add_justified_text(
-    "Para resolver os problemas identificados, propõe-se o desenvolvimento do "
-    "Congrega Fiel, um sistema web que funciona como uma plataforma privada de "
-    "gestão para comunidades eclesiásticas. A solução foi projetada com foco na "
-    "simplicidade, acessibilidade e na experiência do usuário, considerando o "
-    "perfil diversificado dos potenciais usuários."
+body(
+    "Propõe-se o desenvolvimento do Congrega Fiel, um sistema web que funciona "
+    "como uma plataforma privada de gestão para comunidades eclesiásticas, "
+    "projetada com foco na simplicidade e acessibilidade."
 )
 
-add_subsection_title("3.1", "Conceito do Sistema")
+section_h2("3.1", "Conceito do Sistema")
 
-add_justified_text(
-    "O Congrega Fiel opera como uma rede social privada voltada para igrejas. "
-    "Cada congregação possui seu próprio espaço digital, gerenciado pelo pastor "
-    "ou líder responsável, que cadastra a igreja e, posteriormente, registra os "
-    "membros da comunidade. O sistema possui dois perfis de acesso distintos:"
+body(
+    "O Congrega Fiel opera como uma rede social privada para igrejas. "
+    "Cada congregação possui seu espaço digital gerenciado pelo pastor, "
+    "com dois perfis de acesso:"
 )
 
-add_bullet_item(
-    "Pastor/Líder (Administrador): possui acesso completo ao sistema, podendo "
-    "cadastrar a igreja, gerenciar membros, registrar e acompanhar pagamentos, "
-    "criar eventos e enviar comunicados."
+bullet(
+    "Pastor/Líder (Administrador): acesso completo \u2014 cadastrar igreja, "
+    "gerenciar membros, registrar pagamentos, criar eventos e comunicados."
 )
-add_bullet_item(
-    "Fiel/Membro: possui acesso ao seu perfil, pode visualizar eventos, "
-    "consultar seu histórico de contribuições e receber comunicados da igreja."
+bullet(
+    "Fiel/Membro: acesso ao seu perfil, eventos, histórico de contribuições "
+    "e comunicados da igreja."
 )
 
-add_subsection_title("3.2", "Principais Funcionalidades do MVP")
+section_h2("3.2", "Principais Funcionalidades do MVP")
 
-funcionalidades = [
+for f in [
     "Cadastro e autenticação de usuários (pastores e fiéis);",
     "Cadastro e configuração de igrejas por parte do pastor;",
     "Cadastro e gestão de membros vinculados a cada igreja;",
-    "Registro e controle de contribuições financeiras (dízimos e ofertas);",
+    "Registro e controle de contribuições financeiras;",
     "Criação e divulgação de eventos da comunidade;",
-    "Painel administrativo para o pastor com visão geral da igreja;",
-    "Área do fiel com acesso às suas informações e atividades da igreja.",
-]
+    "Painel administrativo para o pastor;",
+    "Área do fiel com acesso às suas informações.",
+]:
+    bullet(f)
 
-for func in funcionalidades:
-    add_bullet_item(func)
+section_h2("3.3", "Diferenciais")
 
-add_subsection_title("3.3", "Diferenciais da Solução")
-
-add_justified_text(
-    "O Congrega Fiel se diferencia das ferramentas genéricas disponíveis no mercado "
-    "por ter sido projetado especificamente para o contexto eclesiástico, oferecendo: "
-    "privacidade por padrão (cada igreja possui seu ambiente isolado), interface "
-    "intuitiva adaptada para usuários com diferentes níveis de familiaridade "
-    "tecnológica, e funcionalidades que atendem diretamente às demandas reais de "
-    "uma comunidade religiosa."
+body(
+    "Privacidade por padrão (cada igreja em ambiente isolado), interface "
+    "intuitiva para diferentes perfis de usuário, e funcionalidades voltadas "
+    "especificamente para o contexto eclesiástico."
 )
 
 # ============================================================
-# 4. ESCOPO DO PROJETO (MVP)
+# 4  ESCOPO DO PROJETO (MVP)
 # ============================================================
-add_page_break()
-add_section_title("4", "ESCOPO DO PROJETO (MVP)")
+page_break()
+section_h1("4", "ESCOPO DO PROJETO (MVP)")
 
-add_justified_text(
-    "O escopo deste projeto está delimitado ao desenvolvimento de um Produto Mínimo "
-    "Viável (MVP), ou seja, uma versão funcional do sistema contendo as funcionalidades "
-    "essenciais para validação do conceito. O MVP permite avaliar a viabilidade técnica "
-    "e a aceitação do produto pelos usuários-alvo, servindo como base para futuras "
-    "iterações e melhorias."
+body(
+    "O escopo está delimitado a um Produto Mínimo Viável contendo as "
+    "funcionalidades essenciais para validação do conceito."
 )
 
-add_subsection_title("4.1", "Funcionalidades Incluídas no MVP")
+section_h2("4.1", "Funcionalidades Incluídas")
 
-add_subsubsection_title("4.1.1", "Módulo de Autenticação e Cadastro")
-for item in [
-    "Cadastro de pastor com validação de dados;",
-    "Cadastro de fiel vinculado a uma igreja;",
-    "Login e logout com controle de sessão;",
-    "Recuperação de senha;",
-    "Diferenciação de perfis (pastor e fiel).",
-]:
-    add_bullet_item(item)
+section_h3("4.1.1", "Módulo de Autenticação e Cadastro")
+for i in ["Cadastro de pastor com validação de dados;",
+          "Cadastro de fiel vinculado a uma igreja;",
+          "Login e logout com controle de sessão;",
+          "Recuperação de senha;",
+          "Diferenciação de perfis (pastor e fiel)."]:
+    bullet(i)
 
-add_subsubsection_title("4.1.2", "Módulo de Gestão da Igreja")
-for item in [
-    "Cadastro de nova igreja pelo pastor;",
-    "Edição de informações da igreja (nome, endereço, descrição);",
-    "Visualização do painel da igreja com dados resumidos.",
-]:
-    add_bullet_item(item)
+section_h3("4.1.2", "Módulo de Gestão da Igreja")
+for i in ["Cadastro de nova igreja pelo pastor;",
+          "Edição de informações (nome, endereço, descrição);",
+          "Painel da igreja com dados resumidos."]:
+    bullet(i)
 
-add_subsubsection_title("4.1.3", "Módulo de Gestão de Membros")
-for item in [
-    "Cadastro de novos membros pelo pastor;",
-    "Listagem de membros com filtros de busca;",
-    "Edição e exclusão de cadastros de membros;",
-    "Visualização de perfil individual do membro.",
-]:
-    add_bullet_item(item)
+section_h3("4.1.3", "Módulo de Gestão de Membros")
+for i in ["Cadastro de novos membros pelo pastor;",
+          "Listagem com filtros de busca;",
+          "Edição e exclusão de cadastros;",
+          "Visualização de perfil individual."]:
+    bullet(i)
 
-add_subsubsection_title("4.1.4", "Módulo de Gestão Financeira")
-for item in [
-    "Registro de contribuições (dízimos, ofertas, doações);",
-    "Histórico de pagamentos por membro;",
-    "Relatório financeiro resumido para o pastor;",
-    "Consulta de contribuições pelo fiel (apenas as próprias).",
-]:
-    add_bullet_item(item)
+section_h3("4.1.4", "Módulo Financeiro")
+for i in ["Registro de contribuições (dízimos, ofertas, doações);",
+          "Histórico de pagamentos por membro;",
+          "Relatório financeiro resumido para o pastor;",
+          "Consulta pelo fiel (apenas as próprias contribuições)."]:
+    bullet(i)
 
-add_subsubsection_title("4.1.5", "Módulo de Eventos")
-for item in [
-    "Criação de eventos pelo pastor;",
-    "Listagem de eventos para os fiéis;",
-    "Detalhes do evento (data, horário, local, descrição).",
-]:
-    add_bullet_item(item)
+section_h3("4.1.5", "Módulo de Eventos")
+for i in ["Criação de eventos pelo pastor;",
+          "Listagem de eventos para os fiéis;",
+          "Detalhes do evento (data, horário, local, descrição)."]:
+    bullet(i)
 
-add_subsection_title("4.2", "Funcionalidades Fora do Escopo do MVP")
+section_h2("4.2", "Fora do Escopo do MVP")
 
-add_justified_text(
-    "As seguintes funcionalidades foram identificadas como relevantes, porém não "
-    "serão implementadas nesta primeira versão do sistema, ficando reservadas para "
-    "versões futuras:"
-)
-
-for item in [
-    "Aplicativo mobile nativo (Android/iOS);",
-    "Sistema de chat/mensagens em tempo real entre membros;",
-    "Integração com gateways de pagamento online;",
-    "Geração de relatórios avançados em PDF;",
-    "Sistema de notificações push;",
-    "Módulo de escola bíblica/estudos;",
-    "Integração com calendários externos (Google Calendar).",
-]:
-    add_bullet_item(item)
+for i in ["Aplicativo mobile nativo;",
+          "Chat em tempo real;",
+          "Integração com gateways de pagamento;",
+          "Relatórios avançados em PDF;",
+          "Notificações push;",
+          "Módulo de escola bíblica;",
+          "Integração com calendários externos."]:
+    bullet(i)
 
 # ============================================================
-# 5. REQUISITOS DO SISTEMA
+# 5  REQUISITOS DO SISTEMA
 # ============================================================
-add_page_break()
-add_section_title("5", "REQUISITOS DO SISTEMA")
+page_break()
+section_h1("5", "REQUISITOS DO SISTEMA")
 
-add_justified_text(
-    "Os requisitos do sistema foram levantados com base na análise do problema "
-    "identificado e nas funcionalidades definidas no escopo do MVP. Estão organizados "
-    "em requisitos funcionais (o que o sistema deve fazer) e requisitos não funcionais "
-    "(como o sistema deve se comportar)."
+section_h2("5.1", "Requisitos Funcionais")
+
+table(
+    ["ID", "Requisito", "Descrição"],
+    [
+        ["RF01", "Cadastro de Pastor", "Cadastro com nome, e-mail, telefone e senha."],
+        ["RF02", "Cadastro de Igreja", "Pastor cadastra igreja com nome, endereço e descrição."],
+        ["RF03", "Cadastro de Fiel", "Pastor cadastra fiéis vinculados à igreja."],
+        ["RF04", "Autenticação", "Login/logout com validação de credenciais."],
+        ["RF05", "Recuperação de Senha", "Recuperação via e-mail cadastrado."],
+        ["RF06", "Painel do Pastor", "Dashboard com resumo de membros, finanças e eventos."],
+        ["RF07", "Gestão de Membros", "Listar, buscar, editar e excluir membros."],
+        ["RF08", "Contribuições", "Registrar contribuições vinculadas a membros."],
+        ["RF09", "Histórico Financeiro", "Histórico filtrável por período e tipo."],
+        ["RF10", "Criação de Eventos", "Criar eventos com título, data, horário e local."],
+        ["RF11", "Listagem de Eventos", "Listar eventos ordenados por data."],
+        ["RF12", "Área do Fiel", "Acesso a perfil, contribuições e eventos."],
+        ["RF13", "Controle de Acesso", "Funcionalidades admin restritas ao pastor."],
+    ],
+    [2, 3.5, 10.5]
 )
 
-add_subsection_title("5.1", "Requisitos Funcionais")
+section_h2("5.2", "Requisitos Não Funcionais")
 
-rf_data = [
-    ["RF01", "Cadastro de Pastor", "O sistema deve permitir que um pastor se cadastre informando nome completo, e-mail, telefone e senha."],
-    ["RF02", "Cadastro de Igreja", "O sistema deve permitir que o pastor cadastre sua igreja informando nome, endereço, denominação e descrição."],
-    ["RF03", "Cadastro de Fiel", "O sistema deve permitir que o pastor cadastre fiéis vinculados à sua igreja, informando nome, e-mail, telefone e data de nascimento."],
-    ["RF04", "Autenticação", "O sistema deve permitir login e logout para ambos os perfis (pastor e fiel) com validação de credenciais."],
-    ["RF05", "Recuperação de Senha", "O sistema deve oferecer mecanismo de recuperação de senha via e-mail cadastrado."],
-    ["RF06", "Painel do Pastor", "O sistema deve exibir um painel administrativo com resumo de membros, contribuições recentes e próximos eventos."],
-    ["RF07", "Gestão de Membros", "O sistema deve permitir ao pastor listar, buscar, editar e excluir membros cadastrados."],
-    ["RF08", "Registro de Contribuições", "O sistema deve permitir ao pastor registrar contribuições financeiras vinculadas a um membro específico."],
-    ["RF09", "Histórico Financeiro", "O sistema deve exibir o histórico de contribuições, filtrável por período e tipo."],
-    ["RF10", "Criação de Eventos", "O sistema deve permitir ao pastor criar eventos com título, descrição, data, horário e local."],
-    ["RF11", "Listagem de Eventos", "O sistema deve exibir a lista de eventos para os fiéis, ordenados por data."],
-    ["RF12", "Área do Fiel", "O sistema deve oferecer ao fiel acesso ao seu perfil, histórico de contribuições e eventos da igreja."],
-    ["RF13", "Controle de Acesso", "O sistema deve restringir funcionalidades administrativas apenas ao perfil de pastor."],
-]
-
-add_table(
-    headers=["ID", "Requisito", "Descrição"],
-    rows=rf_data,
-    col_widths=[2, 3.5, 10.5]
-)
-
-add_subsection_title("5.2", "Requisitos Não Funcionais")
-
-rnf_data = [
-    ["RNF01", "Usabilidade", "A interface deve ser intuitiva e acessível para usuários com diferentes níveis de letramento digital."],
-    ["RNF02", "Responsividade", "O sistema deve ser responsivo, adaptando-se a diferentes tamanhos de tela (desktop, tablet e smartphone)."],
-    ["RNF03", "Desempenho", "As páginas devem carregar em no máximo 3 segundos em conexões padrão."],
-    ["RNF04", "Segurança", "As senhas devem ser armazenadas de forma criptografada e o sistema deve prevenir ataques comuns (XSS, SQL Injection)."],
-    ["RNF05", "Compatibilidade", "O sistema deve ser compatível com os navegadores Chrome, Firefox, Edge e Safari em suas versões mais recentes."],
-    ["RNF06", "Manutenibilidade", "O código deve seguir boas práticas de desenvolvimento, com separação clara entre HTML, CSS e JavaScript."],
-    ["RNF07", "Disponibilidade", "O sistema deve estar disponível 99% do tempo em ambiente de produção."],
-]
-
-add_table(
-    headers=["ID", "Categoria", "Descrição"],
-    rows=rnf_data,
-    col_widths=[2, 3, 11]
+table(
+    ["ID", "Categoria", "Descrição"],
+    [
+        ["RNF01", "Usabilidade", "Interface intuitiva para diferentes perfis de usuários."],
+        ["RNF02", "Responsividade", "Adaptável a desktop, tablet e smartphone."],
+        ["RNF03", "Desempenho", "Carregamento em até 3 segundos."],
+        ["RNF04", "Segurança", "Senhas criptografadas; prevenção contra XSS e SQL Injection."],
+        ["RNF05", "Compatibilidade", "Chrome, Firefox, Edge e Safari (versões recentes)."],
+        ["RNF06", "Manutenibilidade", "Separação clara entre HTML, CSS e JavaScript."],
+        ["RNF07", "Disponibilidade", "99% de uptime em produção."],
+    ],
+    [2, 3, 11]
 )
 
 # ============================================================
-# 6. TECNOLOGIAS UTILIZADAS
+# 6  TECNOLOGIAS UTILIZADAS
 # ============================================================
-add_page_break()
-add_section_title("6", "TECNOLOGIAS UTILIZADAS")
+page_break()
+section_h1("6", "TECNOLOGIAS UTILIZADAS")
 
-add_justified_text(
-    "A escolha das tecnologias para o desenvolvimento do Congrega Fiel foi orientada "
-    "pelos seguintes critérios: adequação ao escopo do MVP, curva de aprendizado da "
-    "equipe, disponibilidade de recursos e documentação, e capacidade de entrega "
-    "dentro do cronograma estabelecido. Por se tratar de um MVP acadêmico, optou-se "
-    "por tecnologias fundamentais da web, amplamente utilizadas e documentadas."
-)
+section_h2("6.1", "Front-End")
 
-add_subsection_title("6.1", "Front-End")
-
-tech_front = [
-    ("HTML5", "Linguagem de marcação para estruturação do conteúdo das páginas web. "
-     "Utilizada para definir a semântica e a hierarquia dos elementos da interface."),
-    ("CSS3", "Linguagem de estilização responsável pelo layout, tipografia, cores e "
-     "responsividade da aplicação. Utilizada em conjunto com técnicas de Flexbox e "
-     "Grid Layout para garantir uma experiência visual agradável e adaptável."),
-    ("JavaScript (ES6+)", "Linguagem de programação utilizada para implementar a "
-     "lógica de interação no lado do cliente, incluindo validações de formulários, "
-     "manipulação do DOM, requisições assíncronas e controle de navegação."),
-]
-
-for tech, desc in tech_front:
+for tech, desc in [
+    ("HTML5", "Linguagem de marcação para estruturação semântica das páginas."),
+    ("CSS3", "Estilização com Flexbox e Grid Layout para responsividade."),
+    ("JavaScript (ES6+)", "Lógica de interação, validações, requisições assíncronas e manipulação do DOM."),
+]:
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     p.paragraph_format.space_after = Pt(6)
     p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.line_spacing = LINE_SPACING
+    p.paragraph_format.line_spacing = LSPACING
     p.paragraph_format.first_line_indent = Cm(1.25)
-    run_bold = p.add_run(f"{tech}: ")
-    run_bold.font.size = Pt(FONT_SIZE_BODY)
-    run_bold.font.name = FONT_NAME
-    run_bold.bold = True
-    run_desc = p.add_run(desc)
-    run_desc.font.size = Pt(FONT_SIZE_BODY)
-    run_desc.font.name = FONT_NAME
+    rb = p.add_run(f"{tech}: ")
+    rb.font.size = Pt(SZ); rb.font.name = FONT_NAME; rb.bold = True
+    rb.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
+    rd = p.add_run(desc)
+    rd.font.size = Pt(SZ); rd.font.name = FONT_NAME
+    rd.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
 
-add_subsection_title("6.2", "Back-End e Armazenamento")
+section_h2("6.2", "Back-End e Armazenamento")
 
-add_justified_text(
-    "Para o MVP, o armazenamento de dados será implementado utilizando "
-    "LocalStorage e SessionStorage do navegador e, conforme a evolução do projeto, "
-    "poderá ser migrado para uma solução de back-end com banco de dados. "
-    "O JavaScript será utilizado tanto no front-end quanto para a lógica de "
-    "persistência de dados no lado do cliente."
+body(
+    "Para o MVP, a persistência utiliza LocalStorage/SessionStorage do navegador. "
+    "A simulação da API é feita com JSON Server, com migração futura prevista "
+    "para Express com banco de dados."
 )
 
-add_subsection_title("6.3", "Ferramentas de Apoio")
+section_h2("6.3", "Ferramentas de Apoio")
 
-tools_data = [
-    ["Visual Studio Code", "Editor de código principal da equipe"],
-    ["Git / GitHub", "Controle de versão e repositório remoto"],
-    ["Figma", "Prototipação de telas e design de interface"],
-    ["Trello", "Gerenciamento de tarefas e acompanhamento do projeto"],
-    ["Google Docs", "Elaboração colaborativa da documentação"],
-]
-
-add_table(
-    headers=["Ferramenta", "Finalidade"],
-    rows=tools_data,
-    col_widths=[5, 11]
+table(
+    ["Ferramenta", "Finalidade"],
+    [
+        ["Visual Studio Code", "Editor de código principal"],
+        ["Git / GitHub", "Controle de versão e repositório remoto"],
+        ["Figma", "Prototipação e design de interface"],
+        ["Trello", "Gerenciamento de tarefas"],
+    ],
+    [5, 11]
 )
 
 # ============================================================
-# 7. ARQUITETURA ORIENTADA A SERVIÇOS
+# 7  ARQUITETURA ORIENTADA A SERVIÇOS
 # ============================================================
-add_page_break()
-add_section_title("7", "ARQUITETURA ORIENTADA A SERVIÇOS")
+page_break()
+section_h1("7", "ARQUITETURA ORIENTADA A SERVIÇOS")
 
-add_justified_text(
-    "A Arquitetura Orientada a Serviços (SOA — Service-Oriented Architecture) é "
-    "um modelo arquitetural no qual as funcionalidades de um sistema são "
-    "disponibilizadas na forma de serviços independentes, que se comunicam por "
-    "meio de protocolos padronizados. Esse paradigma favorece o desacoplamento "
-    "entre os componentes, a reutilização de código e a escalabilidade."
+body(
+    "A Arquitetura Orientada a Serviços (SOA) é um modelo no qual as "
+    "funcionalidades são disponibilizadas como serviços independentes que "
+    "se comunicam por protocolos padronizados. No Congrega Fiel, o front-end "
+    "consome dados de uma camada de serviços via Web API."
 )
 
-add_justified_text(
-    "No contexto do Congrega Fiel, a arquitetura do sistema é pensada para que "
-    "o front-end (interface do usuário) consuma dados de uma camada de serviços "
-    "por meio de Web APIs, seguindo os princípios da SOA. Mesmo no MVP, essa "
-    "separação é respeitada para facilitar a evolução futura do projeto."
+section_h2("7.1", "Web Services: SOAP e REST")
+
+body("Existem dois modelos principais de Web Services:")
+
+bullet(
+    "SOAP (Simple Object Access Protocol): protocolo baseado em XML com "
+    "formato rígido de mensagens (WSDL). Indicado para cenários que exigem "
+    "alta segurança e transações complexas."
+)
+bullet(
+    "REST (Representational State Transfer): estilo arquitetural leve que "
+    "utiliza os métodos HTTP e formatos como JSON. Amplamente adotado em "
+    "aplicações web e mobile modernas."
 )
 
-add_subsection_title("7.1", "Web Services: SOAP e REST")
-
-add_justified_text(
-    "Web Services são serviços disponibilizados na web que permitem a comunicação "
-    "entre diferentes sistemas. Existem dois modelos principais:"
+body(
+    "O Congrega Fiel adota REST por ser mais adequado a aplicações web, "
+    "mais simples de implementar e por utilizar JSON, que possui integração "
+    "nativa com JavaScript."
 )
 
-add_bullet_item(
-    "SOAP (Simple Object Access Protocol): protocolo baseado em XML que define "
-    "um formato rígido de mensagens. Utiliza o WSDL (Web Services Description "
-    "Language) para descrever os serviços. É mais robusto e indicado para "
-    "cenários que exigem alta segurança e transações complexas, como sistemas "
-    "bancários."
-)
-add_bullet_item(
-    "REST (Representational State Transfer): estilo arquitetural mais leve e "
-    "flexível, que utiliza os métodos nativos do protocolo HTTP para realizar "
-    "operações sobre recursos. Trabalha com formatos como JSON e XML, sendo "
-    "amplamente adotado em aplicações web e mobile modernas."
+section_h2("7.2", "Protocolo HTTP e Métodos RESTful")
+
+body(
+    "O HTTP é o protocolo de comunicação da web. No padrão RESTful, cada "
+    "recurso é acessado por uma URL e manipulado pelos métodos:"
 )
 
-add_justified_text(
-    "Para o Congrega Fiel, optou-se pela abordagem REST por ser mais adequada "
-    "a aplicações web, mais simples de implementar e consumir, e por utilizar "
-    "o formato JSON, que possui melhor integração com JavaScript."
+table(
+    ["Método", "Ação", "Exemplo"],
+    [
+        ["GET", "Consultar/listar", "GET /api/membros"],
+        ["POST", "Criar recurso", "POST /api/membros"],
+        ["PUT", "Atualizar recurso", "PUT /api/membros/1"],
+        ["DELETE", "Remover recurso", "DELETE /api/membros/1"],
+    ],
+    [2.5, 4, 9.5]
 )
 
-add_subsection_title("7.2", "Protocolo HTTP e Métodos RESTful")
+section_h2("7.3", "Web API e Frameworks")
 
-add_justified_text(
-    "O HTTP (HyperText Transfer Protocol) é o protocolo de comunicação utilizado "
-    "na web para a transferência de dados entre cliente e servidor. No padrão "
-    "RESTful, cada recurso do sistema é acessado por uma URL específica e "
-    "manipulado por meio dos seguintes métodos HTTP:"
+body(
+    "Uma Web API expõe funcionalidades via HTTP. Dois frameworks foram "
+    "estudados para o projeto:"
 )
 
-http_methods = [
-    ["GET", "Consultar/listar recursos", "GET /api/membros — lista todos os membros"],
-    ["POST", "Criar um novo recurso", "POST /api/membros — cadastra um novo membro"],
-    ["PUT", "Atualizar um recurso existente", "PUT /api/membros/1 — atualiza o membro de ID 1"],
-    ["DELETE", "Remover um recurso", "DELETE /api/membros/1 — remove o membro de ID 1"],
-]
-
-add_table(
-    headers=["Método", "Ação", "Exemplo no Congrega Fiel"],
-    rows=http_methods,
-    col_widths=[2.5, 4.5, 9]
+bullet(
+    "Node.js com Express: framework minimalista para criar rotas RESTful "
+    "com baixa curva de aprendizado. Vasto ecossistema via npm."
+)
+bullet(
+    "JSON Server: simula uma API REST completa a partir de um arquivo JSON, "
+    "ideal para desenvolvimento e testes do MVP."
 )
 
-add_justified_text(
-    "Essa padronização garante que a comunicação entre o front-end e a API seja "
-    "previsível, documentável e compatível com qualquer cliente HTTP."
+body(
+    "Na fase inicial utiliza-se JSON Server; a migração para Express "
+    "com banco de dados ocorrerá em versões futuras."
 )
 
-add_subsection_title("7.3", "Web API e Frameworks")
+section_h2("7.4", "Estrutura de Diretórios")
 
-add_justified_text(
-    "Uma Web API (Application Programming Interface) é uma interface que expõe "
-    "funcionalidades de um sistema para serem consumidas por outras aplicações "
-    "via HTTP. No projeto Congrega Fiel, dois frameworks foram estudados para "
-    "a construção da API:"
-)
-
-add_bullet_item(
-    "Node.js com Express: framework minimalista para JavaScript no servidor. "
-    "Permite criar rotas RESTful de forma rápida e com baixa curva de "
-    "aprendizado, sendo ideal para MVPs e prototipação. Possui vasto "
-    "ecossistema de pacotes via npm."
-)
-add_bullet_item(
-    "JSON Server: ferramenta que simula uma API REST completa a partir de um "
-    "arquivo JSON. Permite ao front-end consumir dados via HTTP (GET, POST, "
-    "PUT, DELETE) sem a necessidade de configurar um back-end real, sendo "
-    "ideal para a fase de desenvolvimento e testes do MVP."
-)
-
-add_justified_text(
-    "Para a fase inicial do MVP, será utilizado o JSON Server para simular a "
-    "API, permitindo que a equipe de front-end desenvolva e teste as interfaces "
-    "de forma independente. Em versões futuras, a migração para Express com "
-    "banco de dados será realizada."
-)
-
-add_subsection_title("7.4", "Estrutura de Diretórios")
-
-dir_structure = [
-    ["congregafiel/", "Diretório raiz do projeto"],
-    ["  index.html", "Página inicial / Landing page"],
-    ["  pages/", "Páginas HTML do sistema"],
-    ["    login.html", "Tela de login"],
-    ["    cadastro.html", "Tela de cadastro"],
-    ["    painel-pastor.html", "Painel administrativo do pastor"],
-    ["    area-fiel.html", "Área do fiel"],
-    ["    membros.html", "Gestão de membros"],
-    ["    financeiro.html", "Gestão financeira"],
-    ["    eventos.html", "Gestão de eventos"],
-    ["  css/", "Folhas de estilo"],
-    ["    global.css", "Estilos globais e variáveis CSS"],
-    ["    [pagina].css", "Estilos específicos de cada página"],
-    ["  js/", "Scripts JavaScript"],
-    ["    auth.js", "Lógica de autenticação"],
-    ["    membros.js", "Lógica de gestão de membros"],
-    ["    financeiro.js", "Lógica financeira"],
-    ["    eventos.js", "Lógica de eventos"],
-    ["  assets/", "Recursos estáticos (imagens, ícones)"],
-    ["  db.json", "Banco de dados simulado (JSON Server)"],
-]
-
-add_table(
-    headers=["Caminho", "Descrição"],
-    rows=dir_structure,
-    col_widths=[5.5, 10.5]
+table(
+    ["Caminho", "Descrição"],
+    [
+        ["congregafiel/", "Diretório raiz"],
+        ["  index.html", "Landing page"],
+        ["  pages/", "Páginas HTML"],
+        ["  css/", "Folhas de estilo"],
+        ["  js/", "Scripts JavaScript"],
+        ["  assets/", "Imagens e ícones"],
+        ["  db.json", "Banco simulado (JSON Server)"],
+    ],
+    [5.5, 10.5]
 )
 
 # ============================================================
-# 8. DEFINIÇÃO DA EQUIPE E PAPÉIS
+# 8  EQUIPE E PAPÉIS
 # ============================================================
-add_page_break()
-add_section_title("8", "DEFINIÇÃO DA EQUIPE E PAPÉIS")
+page_break()
+section_h1("8", "DEFINIÇÃO DA EQUIPE E PAPÉIS")
 
-add_justified_text(
-    "A equipe de desenvolvimento do Congrega Fiel é composta por cinco integrantes, "
-    "organizados em três frentes de trabalho complementares: Documentação, Front-End "
-    "e Back-End. Essa divisão permite que as atividades sejam executadas em paralelo, "
-    "otimizando o tempo de desenvolvimento e garantindo a cobertura de todas as áreas "
-    "necessárias para a entrega do MVP."
+body(
+    "A equipe é composta por cinco integrantes em três frentes: "
+    "Documentação, Front-End e Back-End."
 )
 
-add_subsection_title("8.1", "Composição da Equipe")
+section_h2("8.1", "Composição")
 
-equipe_data = [
-    ["Catieli Gama Cora", "Documentação", "Elaboração e revisão da documentação técnica"],
-    ["Fernando Alves da Nóbrega", "Documentação / Front-End", "Documentação técnica e desenvolvimento de interfaces"],
-    ["Gabriel Franklin Barcellos", "Front-End / Back-End", "Desenvolvimento de interfaces e lógica de negócios"],
-    ["Jhenniffer Lopes da Silva Vargas", "Documentação / Front-End", "Documentação técnica e desenvolvimento de interfaces"],
-    ["João Pedro Aranda", "Back-End", "Desenvolvimento da lógica de negócios e persistência de dados"],
-]
-
-add_table(
-    headers=["Integrante", "Área(s)", "Responsabilidades"],
-    rows=equipe_data,
-    col_widths=[5, 4, 7]
+table(
+    ["Integrante", "Área(s)", "Responsabilidades"],
+    [
+        ["Catieli Gama Cora", "Documentação", "Elaboração e revisão da documentação"],
+        ["Fernando Alves da Nóbrega", "Documentação / Front-End", "Documentação e interfaces"],
+        ["Gabriel Franklin Barcellos", "Front-End / Back-End", "Interfaces e lógica de negócios"],
+        ["Jhenniffer Lopes da Silva Vargas", "Documentação / Front-End", "Documentação e interfaces"],
+        ["João Pedro Aranda", "Back-End", "Lógica de negócios e persistência"],
+    ],
+    [5, 4, 7]
 )
 
-add_subsection_title("8.2", "Descrição das Frentes de Trabalho")
+section_h2("8.2", "Frentes de Trabalho")
 
-add_subsubsection_title("8.2.1", "Frente de Documentação")
+section_h3("8.2.1", "Documentação")
+body("Fernando, Jhenniffer e Catieli — requisitos, escopo, diagramas e relatórios.")
 
-add_justified_text(
-    "Responsável pela elaboração de toda a documentação do projeto, incluindo: "
-    "levantamento de requisitos, escopo do MVP, diagramas, manuais de uso e "
-    "relatórios de acompanhamento. Integrantes: Fernando Alves da Nóbrega, "
-    "Jhenniffer Lopes da Silva Vargas e Catieli Gama Cora."
-)
+section_h3("8.2.2", "Front-End")
+body("Fernando, Jhenniffer e Gabriel — interfaces, responsividade e acessibilidade.")
 
-add_subsubsection_title("8.2.2", "Frente de Front-End")
-
-add_justified_text(
-    "Responsável pelo desenvolvimento de todas as interfaces visuais do sistema, "
-    "garantindo responsividade, acessibilidade e fidelidade ao protótipo definido. "
-    "Integrantes: Fernando Alves da Nóbrega, Jhenniffer Lopes da Silva Vargas e "
-    "Gabriel Franklin Barcellos."
-)
-
-add_subsubsection_title("8.2.3", "Frente de Back-End")
-
-add_justified_text(
-    "Responsável pela implementação da lógica de negócios, validações, persistência "
-    "de dados e integração entre os módulos do sistema. Integrantes: João Pedro "
-    "Aranda e Gabriel Franklin Barcellos."
-)
+section_h3("8.2.3", "Back-End")
+body("João e Gabriel — lógica de negócios, validações e persistência de dados.")
 
 # ============================================================
-# 9. CRONOGRAMA DO MVP
+# 9  CRONOGRAMA
 # ============================================================
-add_page_break()
-add_section_title("9", "CRONOGRAMA DO MVP")
+page_break()
+section_h1("9", "CRONOGRAMA DO MVP")
 
-add_justified_text(
-    "O cronograma a seguir apresenta as principais etapas do desenvolvimento do MVP "
-    "do Congrega Fiel, organizadas em quatro sprints semanais com início em "
-    "24 de fevereiro de 2026. O planejamento considera a disponibilidade da equipe "
-    "e a complexidade de cada módulo."
+body(
+    "O desenvolvimento está organizado em quatro sprints semanais com início "
+    "em 24 de fevereiro de 2026."
 )
 
-cronograma_data = [
-    ["Sprint 1", "24/02 – 02/03", "Documentação inicial, levantamento de requisitos, definição de escopo e prototipação de telas (Figma)"],
-    ["Sprint 2", "03/03 – 09/03", "Estruturação HTML das páginas, estilização CSS responsiva e módulo de autenticação"],
-    ["Sprint 3", "10/03 – 16/03", "Módulos de gestão de membros, gestão financeira e eventos; integração com API (JSON Server)"],
-    ["Sprint 4", "17/03 – 23/03", "Integração final, testes, correções, documentação final e preparação para apresentação"],
-]
-
-add_table(
-    headers=["Sprint", "Período", "Atividades"],
-    rows=cronograma_data,
-    col_widths=[2.5, 3, 10.5]
+table(
+    ["Sprint", "Período", "Atividades"],
+    [
+        ["Sprint 1", "24/02 \u2013 02/03", "Documentação, requisitos, escopo, prototipação (Figma)"],
+        ["Sprint 2", "03/03 \u2013 09/03", "HTML das páginas, CSS responsivo, módulo de autenticação"],
+        ["Sprint 3", "10/03 \u2013 16/03", "Módulos de membros, financeiro e eventos; integração com API"],
+        ["Sprint 4", "17/03 \u2013 23/03", "Integração final, testes, documentação e apresentação"],
+    ],
+    [2.5, 3, 10.5]
 )
 
 # ============================================================
-# 10. CONSIDERAÇÕES FINAIS
+# 10  CONSIDERAÇÕES FINAIS
 # ============================================================
-add_page_break()
-add_section_title("10", "CONSIDERAÇÕES FINAIS")
+page_break()
+section_h1("10", "CONSIDERAÇÕES FINAIS")
 
-add_justified_text(
-    "O projeto Congrega Fiel representa uma iniciativa prática de aplicação dos "
-    f"conhecimentos adquiridos ao longo do {CURSO} "
-    f"da {INSTITUICAO}, aliando teoria e prática na construção de uma solução real "
-    "para um problema concreto identificado no cotidiano de comunidades religiosas."
+body(
+    "O Congrega Fiel aplica os conhecimentos do curso superior em uma solução "
+    "real para a gestão de comunidades religiosas. O MVP contempla cadastro de "
+    "igrejas e membros, controle financeiro, eventos e diferenciação de perfis."
 )
 
-add_justified_text(
-    "A abordagem de Produto Mínimo Viável foi escolhida estrategicamente para "
-    "permitir a entrega de uma versão funcional do sistema dentro do prazo "
-    "acadêmico, sem comprometer a qualidade e a usabilidade da aplicação. O MVP "
-    "contempla as funcionalidades essenciais para a gestão de uma comunidade "
-    "eclesiástica: cadastro de igrejas e membros, controle financeiro, gestão de "
-    "eventos e diferenciação de perfis de acesso."
-)
-
-add_justified_text(
-    "A utilização de tecnologias fundamentais da web (HTML, CSS e JavaScript) "
-    "garante compatibilidade ampla, baixo custo de implantação e facilidade de "
-    "manutenção, tornando a solução acessível para igrejas com diferentes níveis "
-    "de infraestrutura tecnológica."
-)
-
-add_justified_text(
-    "A divisão da equipe em frentes de trabalho especializadas — Documentação, "
-    "Front-End e Back-End — permitiu a execução paralela de atividades, "
-    "otimizando o tempo de desenvolvimento e garantindo a cobertura de todas as "
-    "áreas essenciais do projeto."
-)
-
-add_justified_text(
-    "Como próximos passos, prevê-se a evolução do sistema com a implementação "
-    "de um back-end robusto com banco de dados, integração com serviços de "
-    "pagamento online, desenvolvimento de aplicativo mobile e expansão das "
-    "funcionalidades de comunicação entre membros."
+body(
+    "A utilização de HTML, CSS e JavaScript garante compatibilidade, baixo custo "
+    "e facilidade de manutenção. Como próximos passos: back-end com banco de "
+    "dados, integração com pagamento online e aplicativo mobile."
 )
 
 # ============================================================
 # REFERÊNCIAS
 # ============================================================
-add_page_break()
-add_section_title("", "REFERÊNCIAS")
+page_break()
+section_h1("", "REFERÊNCIAS")
 
-referencias = [
+for ref in [
     'ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. ABNT NBR 6023: informação e '
-    'documentação — referências — elaboração. Rio de Janeiro: ABNT, 2018.',
+    'documentação \u2014 referências \u2014 elaboração. Rio de Janeiro: ABNT, 2018.',
 
     'ASSOCIAÇÃO BRASILEIRA DE NORMAS TÉCNICAS. ABNT NBR 14724: informação e '
-    'documentação — trabalhos acadêmicos — apresentação. Rio de Janeiro: ABNT, 2011.',
+    'documentação \u2014 trabalhos acadêmicos \u2014 apresentação. Rio de Janeiro: ABNT, 2011.',
 
     'MOZILLA DEVELOPER NETWORK. HTML: Linguagem de Marcação de HiperTexto. '
     'Disponível em: https://developer.mozilla.org/pt-BR/docs/Web/HTML. '
@@ -990,32 +867,26 @@ referencias = [
     'PRESSMAN, R. S.; MAXIM, B. R. Engenharia de software: uma abordagem '
     'profissional. 9. ed. Porto Alegre: AMGH, 2021.',
 
-    'RIES, E. A startup enxuta: como os empreendedores atuais utilizam a '
-    'inovação contínua para criar empresas extremamente bem-sucedidas. São Paulo: '
-    'Leya, 2012.',
+    'RIES, E. A startup enxuta. São Paulo: Leya, 2012.',
 
     'SOMMERVILLE, I. Engenharia de software. 10. ed. São Paulo: Pearson, 2019.',
-]
-
-for ref in referencias:
+]:
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     p.paragraph_format.space_after = Pt(12)
     p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.line_spacing = 1.0  # Referências com espaçamento simples (ABNT)
+    p.paragraph_format.line_spacing = 1.0
     p.paragraph_format.left_indent = Cm(0)
     p.paragraph_format.first_line_indent = Cm(0)
-    run = p.add_run(ref)
-    run.font.size = Pt(FONT_SIZE_BODY)
-    run.font.name = FONT_NAME
+    r = p.add_run(ref)
+    r.font.size = Pt(SZ); r.font.name = FONT_NAME
+    r.font.color.rgb = RGBColor(0x1B, 0x2A, 0x4A)
 
 # ============================================================
-# SALVAR DOCUMENTO
+# SALVAR
 # ============================================================
-output_path = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "Documentacao_CongregaFiel_MVP.docx"
-)
-doc.save(output_path)
-print(f"Documento gerado com sucesso: {output_path}")
-print("IMPORTANTE: Ao abrir no Word, pressione Ctrl+A e depois F9 para atualizar o sumário automaticamente.")
+out = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                   "Documentacao_CongregaFiel_MVP.docx")
+doc.save(out)
+print(f"OK  -> {out}")
+print("Ao abrir no Word, pressione Ctrl+A e F9 para gerar o sumário.")
