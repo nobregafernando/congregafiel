@@ -6,6 +6,7 @@
 const express = require("express");
 const cors = require("cors");
 const supabase = require("./supabase");
+const { criarClienteAuth } = require("./supabase");
 
 const app = express();
 const PORTA = process.env.PORT || 3000;
@@ -186,8 +187,9 @@ app.post("/api/auth/login", async (req, res) => {
   }
 
   try {
-    // 1. Autenticar via Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    // 1. Autenticar via Supabase Auth (cliente separado para não mudar sessão)
+    const authClient = criarClienteAuth();
+    const { data: authData, error: authError } = await authClient.auth.signInWithPassword({
       email,
       password: senha,
     });

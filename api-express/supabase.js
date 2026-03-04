@@ -16,4 +16,13 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Cliente separado para operações de auth (signIn/signUp)
+// Evita que signInWithPassword mude a sessão do cliente principal
+function criarClienteAuth() {
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
 module.exports = supabase;
+module.exports.criarClienteAuth = criarClienteAuth;

@@ -21,7 +21,7 @@ from modelos import (
     RegistrarIgrejaReq, RegistrarMembroReq,
     LoginReq, RecuperarSenhaReq,
 )
-from supabase_client import supabase
+from supabase_client import supabase, criar_cliente_auth
 
 # -------------------- Configuração --------------------
 app = FastAPI(
@@ -186,7 +186,8 @@ def registrar_membro(dados: RegistrarMembroReq):
 def login(dados: LoginReq):
     """Autentica um usuário (igreja ou membro) e retorna token de acesso."""
     try:
-        auth_resp = supabase.auth.sign_in_with_password({
+        auth_client = criar_cliente_auth()
+        auth_resp = auth_client.auth.sign_in_with_password({
             "email": dados.email,
             "password": dados.senha,
         })

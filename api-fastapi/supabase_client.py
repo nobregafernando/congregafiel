@@ -16,3 +16,8 @@ if not SUPABASE_URL or not SUPABASE_SECRET_KEY:
     raise RuntimeError("SUPABASE_URL e SUPABASE_SECRET_KEY devem estar definidos no .env")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SECRET_KEY)
+
+
+def criar_cliente_auth() -> Client:
+    """Cria cliente Supabase separado para auth (evita mudar sessão do principal)."""
+    return create_client(SUPABASE_URL, SUPABASE_SECRET_KEY)
