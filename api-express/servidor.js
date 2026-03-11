@@ -28,7 +28,7 @@ function gerarCodigo(nomeIgreja) {
 
 // POST /api/auth/registrar-igreja — Cadastrar nova igreja + pastor
 app.post("/api/auth/registrar-igreja", async (req, res) => {
-  const { nome_pastor, nome_igreja, email, senha } = req.body;
+  const { nome_pastor, nome_igreja, email, senha, endereco, latitude, longitude } = req.body;
 
   if (!nome_pastor || !nome_igreja || !email || !senha) {
     return res.status(400).json({ erro: "Todos os campos são obrigatórios" });
@@ -57,15 +57,20 @@ app.post("/api/auth/registrar-igreja", async (req, res) => {
     const codigo = gerarCodigo(nome_igreja);
 
     // 2. Inserir na tabela igrejas com o mesmo ID do auth
+    const dadosIgreja = {
+      id: userId,
+      nome: nome_igreja,
+      codigo,
+      nome_pastor,
+      email,
+    };
+    if (endereco) dadosIgreja.endereco = endereco;
+    if (latitude != null) dadosIgreja.latitude = latitude;
+    if (longitude != null) dadosIgreja.longitude = longitude;
+
     const { data: igreja, error: dbError } = await supabase
       .from("igrejas")
-      .insert({
-        id: userId,
-        nome: nome_igreja,
-        codigo,
-        nome_pastor,
-        email,
-      })
+      .insert(dadosIgreja)
       .select()
       .single();
 
@@ -281,6 +286,17 @@ app.post("/api/auth/recuperar-senha", async (req, res) => {
 // ROTAS — IGREJAS
 // =====================================
 
+// GET /api/igrejas/publicas — Listar igrejas para o mapa (dados públicos, sem auth)
+app.get("/api/igrejas/publicas", async (req, res) => {
+  const { data, error } = await supabase
+    .from("igrejas")
+    .select("id, nome, endereco, codigo, nome_pastor, latitude, longitude")
+    .order("nome", { ascending: true });
+
+  if (error) return res.status(500).json({ erro: error.message });
+  res.json(data);
+});
+
 // GET /api/igrejas — Listar todas as igrejas
 app.get("/api/igrejas", async (req, res) => {
   const { data, error } = await supabase
@@ -330,13 +346,15 @@ app.post("/api/igrejas", async (req, res) => {
 
 // PUT /api/igrejas/:id — Atualizar igreja
 app.put("/api/igrejas/:id", async (req, res) => {
-  const { nome, endereco, descricao, nome_pastor, email } = req.body;
+  const { nome, endereco, descricao, nome_pastor, email, latitude, longitude } = req.body;
   const atualizacao = {};
   if (nome !== undefined) atualizacao.nome = nome;
   if (endereco !== undefined) atualizacao.endereco = endereco;
   if (descricao !== undefined) atualizacao.descricao = descricao;
   if (nome_pastor !== undefined) atualizacao.nome_pastor = nome_pastor;
   if (email !== undefined) atualizacao.email = email;
+  if (latitude !== undefined) atualizacao.latitude = latitude;
+  if (longitude !== undefined) atualizacao.longitude = longitude;
 
   const { data, error } = await supabase
     .from("igrejas")
@@ -482,7 +500,7 @@ app.get("/api/eventos/:id", async (req, res) => {
 
 // POST /api/eventos — Criar novo evento
 app.post("/api/eventos", async (req, res) => {
-  const { titulo, descricao, data, horario, local, igreja_id } = req.body;
+  const { titulo, descricao, data, horario, local, igreja_id, tipo } = req.body;
   if (!titulo || !data || !igreja_id) {
     return res.status(400).json({ erro: "Título, data e igreja_id são obrigatórios" });
   }
@@ -496,6 +514,7 @@ app.post("/api/eventos", async (req, res) => {
       horario: horario || "",
       local: local || "",
       igreja_id,
+      tipo: tipo || "evento",
     })
     .select()
     .single();
@@ -506,13 +525,14 @@ app.post("/api/eventos", async (req, res) => {
 
 // PUT /api/eventos/:id — Atualizar evento
 app.put("/api/eventos/:id", async (req, res) => {
-  const { titulo, descricao, data, horario, local } = req.body;
+  const { titulo, descricao, data, horario, local, tipo } = req.body;
   const atualizacao = {};
   if (titulo !== undefined) atualizacao.titulo = titulo;
   if (descricao !== undefined) atualizacao.descricao = descricao;
   if (data !== undefined) atualizacao.data = data;
   if (horario !== undefined) atualizacao.horario = horario;
   if (local !== undefined) atualizacao.local = local;
+  if (tipo !== undefined) atualizacao.tipo = tipo;
 
   const { data: evento, error } = await supabase
     .from("eventos")
@@ -754,10 +774,15 @@ app.post("/api/pedidos-oracao", async (req, res) => {
 
 // PUT /api/pedidos-oracao/:id — Atualizar status do pedido
 app.put("/api/pedidos-oracao/:id", async (req, res) => {
-  const { pedido, status } = req.body;
+  const { pedido, status, resposta, respondido_por } = req.body;
   const atualizacao = {};
   if (pedido !== undefined) atualizacao.pedido = pedido;
   if (status !== undefined) atualizacao.status = status;
+  if (resposta !== undefined) atualizacao.resposta = resposta;
+  if (respondido_por !== undefined) atualizacao.respondido_por = respondido_por;
+  if (resposta !== undefined || status === "respondido") {
+    atualizacao.respondido_em = new Date().toISOString();
+  }
 
   const { data, error } = await supabase
     .from("pedidos_oracao")

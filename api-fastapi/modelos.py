@@ -23,6 +23,8 @@ class IgrejaAtualizar(BaseModel):
     descricao: Optional[str] = None
     nome_pastor: Optional[str] = None
     email: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
 
 # -------------------- Membro --------------------
@@ -49,6 +51,7 @@ class EventoCriar(BaseModel):
     data: str = Field(..., description="Data no formato AAAA-MM-DD")
     horario: Optional[str] = Field("", description="Horário do evento")
     local: Optional[str] = Field("", description="Local do evento")
+    tipo: Optional[str] = Field("evento", description="Tipo: culto, estudo, conferencia, especial, evento")
     igreja_id: str = Field(..., description="UUID da igreja organizadora")
 
 
@@ -58,6 +61,7 @@ class EventoAtualizar(BaseModel):
     data: Optional[str] = None
     horario: Optional[str] = None
     local: Optional[str] = None
+    tipo: Optional[str] = None
 
 
 # -------------------- Contribuição --------------------
@@ -96,6 +100,8 @@ class PedidoOracaoCriar(BaseModel):
 class PedidoOracaoAtualizar(BaseModel):
     pedido: Optional[str] = None
     status: Optional[str] = Field(None, description="Status: pendente, orado ou respondido")
+    resposta: Optional[str] = Field(None, description="Resposta da igreja ao pedido")
+    respondido_por: Optional[str] = Field(None, description="Nome de quem respondeu")
 
 
 # -------------------- Autenticação --------------------
@@ -104,6 +110,9 @@ class RegistrarIgrejaReq(BaseModel):
     nome_igreja: str = Field(..., min_length=2, description="Nome da igreja")
     email: str = Field(..., description="E-mail para login")
     senha: str = Field(..., min_length=6, description="Senha de acesso")
+    endereco: Optional[str] = Field("", description="Endereço da igreja")
+    latitude: Optional[float] = Field(None, description="Latitude")
+    longitude: Optional[float] = Field(None, description="Longitude")
 
 
 class RegistrarMembroReq(BaseModel):

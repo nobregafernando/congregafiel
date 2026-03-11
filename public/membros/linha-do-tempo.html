@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pedidos de Oração - CongregaFiel</title>
+    <title>Linha do Tempo - CongregaFiel</title>
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="pedidos-oracao.css">
+    <link rel="stylesheet" href="linha-do-tempo.css">
 </head>
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -25,7 +25,7 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 Eventos
             </a>
-            <a href="linha-do-tempo.html" class="sidebar__link">
+            <a href="linha-do-tempo.html" class="sidebar__link active">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="20" r="2"/><line x1="12" y1="6" x2="12" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/></svg>
                 Linha do Tempo
             </a>
@@ -37,7 +37,7 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 Comunicados
             </a>
-            <a href="pedidos-oracao.html" class="sidebar__link active">
+            <a href="pedidos-oracao.html" class="sidebar__link">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
                 Pedidos de Oração
             </a>
@@ -66,54 +66,99 @@
         </header>
 
         <main class="content">
-            <div class="page-header">
-                <div class="page-header-row">
-                    <div>
-                        <h1>Pedidos de Oração</h1>
-                        <p class="page-subtitle">Compartilhe seus pedidos com <strong id="nomeIgrejaHeader" class="igreja-destaque"></strong></p>
+            <!-- HERO SECTION -->
+            <section class="hero" id="heroSection">
+                <div class="hero__pattern"></div>
+                <div class="hero__inner">
+                    <div class="hero__badge">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L15 8.5L22 9.5L17 14.5L18 21.5L12 18.5L6 21.5L7 14.5L2 9.5L9 8.5L12 2Z"/></svg>
+                        <span>Jornada de F&eacute;</span>
                     </div>
-                    <button class="btn-primary" id="btnNovoPedido">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        Novo pedido
-                    </button>
+                    <h1 class="hero__title">Linha do Tempo</h1>
+                    <p class="hero__subtitle">Acompanhe os cultos e eventos da sua igreja</p>
+
+                    <!-- NEXT EVENT CARD -->
+                    <div class="next-event" id="nextEventCard" style="display:none;">
+                        <span class="next-event__label">Pr&oacute;ximo evento</span>
+                        <h3 class="next-event__title" id="nextEventTitle"></h3>
+                        <div class="next-event__info" id="nextEventInfo"></div>
+                        <div class="countdown" id="countdown">
+                            <div class="countdown__item">
+                                <span class="countdown__value" id="countDias">00</span>
+                                <span class="countdown__label">dias</span>
+                            </div>
+                            <div class="countdown__sep">:</div>
+                            <div class="countdown__item">
+                                <span class="countdown__value" id="countHoras">00</span>
+                                <span class="countdown__label">horas</span>
+                            </div>
+                            <div class="countdown__sep">:</div>
+                            <div class="countdown__item">
+                                <span class="countdown__value" id="countMin">00</span>
+                                <span class="countdown__label">min</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STATS -->
+                    <div class="hero__stats">
+                        <div class="stat">
+                            <span class="stat__value" id="statTotal">0</span>
+                            <span class="stat__label">Total</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat__value" id="statCultos">0</span>
+                            <span class="stat__label">Cultos</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat__value" id="statProximos">0</span>
+                            <span class="stat__label">Pr&oacute;ximos</span>
+                        </div>
+                    </div>
                 </div>
+            </section>
+
+            <!-- FILTER TABS -->
+            <div class="filters" id="filters">
+                <button class="filters__btn filters__btn--active" data-filtro="todos">Todos</button>
+                <button class="filters__btn" data-filtro="culto">
+                    <span class="filters__dot filters__dot--culto"></span>
+                    Cultos
+                </button>
+                <button class="filters__btn" data-filtro="estudo">
+                    <span class="filters__dot filters__dot--estudo"></span>
+                    Estudos
+                </button>
+                <button class="filters__btn" data-filtro="conferencia">
+                    <span class="filters__dot filters__dot--conferencia"></span>
+                    Confer&ecirc;ncias
+                </button>
+                <button class="filters__btn" data-filtro="especial">
+                    <span class="filters__dot filters__dot--especial"></span>
+                    Especiais
+                </button>
             </div>
 
-            <!-- Form -->
-            <div class="form-card" id="formCard" style="display:none;">
-                <h3>Novo pedido de oração</h3>
-                <form id="formPedido">
-                    <div class="form-group">
-                        <label for="textPedido">Seu pedido</label>
-                        <textarea id="textPedido" rows="4" placeholder="Descreva seu pedido de oração..." required></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary" id="btnCancelar">Cancelar</button>
-                        <button type="submit" class="btn-primary">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                            Enviar pedido
-                        </button>
-                    </div>
-                </form>
+            <!-- TIMELINE -->
+            <div class="timeline" id="timeline">
+                <!-- JS renders here -->
             </div>
 
-            <!-- List -->
-            <div id="pedidosList" class="pedidos-list"></div>
-
+            <!-- EMPTY STATE -->
             <div id="emptyState" class="empty-state" style="display:none;">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#8A7B6D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                <h3>Nenhum pedido de oração</h3>
-                <p>Clique em "Novo pedido" para enviar seu primeiro pedido.</p>
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#8A7B6D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="20" r="2"/><line x1="12" y1="6" x2="12" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/></svg>
+                <h3>Nenhum evento na linha do tempo</h3>
+                <p>Ainda n&atilde;o h&aacute; eventos programados para sua igreja.</p>
             </div>
         </main>
     </div>
 
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
+    <!-- TOAST -->
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <script src="../js/servicos/sessao-servico.js"></script>
     <script src="../js/servicos/ui-servico.js"></script>
-  <script src="../js/servicos/api-servico.js"></script>
-    <script src="pedidos-oracao.js"></script>
+    <script src="../js/servicos/api-servico.js"></script>
+    <script src="linha-do-tempo.js"></script>
 </body>
 </html>

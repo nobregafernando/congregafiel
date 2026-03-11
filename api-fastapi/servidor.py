@@ -75,13 +75,21 @@ def registrar_igreja(dados: RegistrarIgrejaReq):
 
         # 3. Inserir na tabela igrejas
         try:
-            igreja_resp = supabase.table("igrejas").insert({
+            dados_igreja = {
                 "id": usuario_id,
                 "nome": dados.nome_igreja,
                 "nome_pastor": dados.nome_pastor,
                 "email": dados.email,
                 "codigo": codigo,
-            }).execute()
+            }
+            if dados.endereco:
+                dados_igreja["endereco"] = dados.endereco
+            if dados.latitude is not None:
+                dados_igreja["latitude"] = dados.latitude
+            if dados.longitude is not None:
+                dados_igreja["longitude"] = dados.longitude
+
+            igreja_resp = supabase.table("igrejas").insert(dados_igreja).execute()
 
             # 4. Inserir pastor como membro
             supabase.table("membros").insert({
@@ -262,6 +270,15 @@ def recuperar_senha(dados: RecuperarSenhaReq):
 # ROTAS — IGREJAS
 # =============================================
 
+@app.get("/api/igrejas/publicas", tags=["Igrejas"], summary="Listar igrejas para o mapa")
+def listar_igrejas_publicas():
+    """Retorna dados públicos das igrejas para exibição no mapa."""
+    resposta = supabase.table("igrejas").select(
+        "id, nome, endereco, codigo, nome_pastor, latitude, longitude"
+    ).order("nome").execute()
+    return resposta.data
+
+
 @app.get("/api/igrejas", tags=["Igrejas"], summary="Listar todas as igrejas")
 def listar_igrejas():
     """Retorna a lista completa de igrejas cadastradas."""
@@ -307,6 +324,10 @@ def atualizar_igreja(igreja_id: str, atualizacao: IgrejaAtualizar):
         campos["nome_pastor"] = atualizacao.nome_pastor
     if atualizacao.email is not None:
         campos["email"] = atualizacao.email
+    if atualizacao.latitude is not None:
+        campos["latitude"] = atualizacao.latitude
+    if atualizacao.longitude is not None:
+        campos["longitude"] = atualizacao.longitude
 
     resposta = supabase.table("igrejas").update(campos).eq("id", igreja_id).execute()
     if not resposta.data:
@@ -428,6 +449,7 @@ def criar_evento(evento: EventoCriar):
         "data": evento.data,
         "horario": evento.horario or "",
         "local": evento.local or "",
+        "tipo": evento.tipo or "evento",
         "igreja_id": evento.igreja_id,
     }
     resposta = supabase.table("eventos").insert(dados).execute()
@@ -448,6 +470,8 @@ def atualizar_evento(evento_id: str, atualizacao: EventoAtualizar):
         campos["horario"] = atualizacao.horario
     if atualizacao.local is not None:
         campos["local"] = atualizacao.local
+    if atualizacao.tipo is not None:
+        campos["tipo"] = atualizacao.tipo
 
     resposta = supabase.table("eventos").update(campos).eq("id", evento_id).execute()
     if not resposta.data:
@@ -637,6 +661,13 @@ def atualizar_pedido_oracao(pedido_id: str, atualizacao: PedidoOracaoAtualizar):
         campos["pedido"] = atualizacao.pedido
     if atualizacao.status is not None:
         campos["status"] = atualizacao.status
+    if atualizacao.resposta is not None:
+        campos["resposta"] = atualizacao.resposta
+    if atualizacao.respondido_por is not None:
+        campos["respondido_por"] = atualizacao.respondido_por
+    if atualizacao.resposta is not None or atualizacao.status == "respondido":
+        from datetime import datetime, timezone
+        campos["respondido_em"] = datetime.now(timezone.utc).isoformat()
 
     resposta = supabase.table("pedidos_oracao").update(campos).eq("id", pedido_id).execute()
     if not resposta.data:

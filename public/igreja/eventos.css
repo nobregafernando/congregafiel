@@ -504,6 +504,13 @@ textarea {
   border: 1px solid rgba(138, 123, 109, 0.15);
 }
 
+.event-badge--tipo { font-size: 0.65rem; }
+.event-badge--tipo-culto { background: rgba(212, 165, 116, 0.12); color: #B8894E; border: 1px solid rgba(212, 165, 116, 0.25); }
+.event-badge--tipo-estudo { background: rgba(91, 141, 239, 0.1); color: #3B6BD4; border: 1px solid rgba(91, 141, 239, 0.2); }
+.event-badge--tipo-conferencia { background: rgba(155, 111, 217, 0.1); color: #7B4FBB; border: 1px solid rgba(155, 111, 217, 0.2); }
+.event-badge--tipo-especial { background: rgba(232, 124, 138, 0.1); color: #D05A68; border: 1px solid rgba(232, 124, 138, 0.2); }
+.event-badge--tipo-evento { background: rgba(196, 131, 122, 0.1); color: var(--primary-2); border: 1px solid rgba(196, 131, 122, 0.2); }
+
 .event-card__desc {
   font-size: 0.85rem;
   color: var(--muted);
@@ -699,6 +706,7 @@ textarea {
   font-size: 0.82rem;
 }
 
+.form-group select,
 .form-group input,
 .form-group textarea {
   border: 1px solid var(--line);
@@ -711,6 +719,7 @@ textarea {
   outline: none;
 }
 
+.form-group select:focus,
 .form-group input:focus,
 .form-group textarea:focus {
   border-color: var(--primary);

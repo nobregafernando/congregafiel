@@ -70,9 +70,12 @@
         const upcoming = isUpcoming(ev.data);
 
         const cardClass = "event-card" + (upcoming ? "" : " event-card--past");
-        const badgeHtml = upcoming
+        const tipoLabels = { culto: "Culto", estudo: "Estudo", conferencia: "Confer\u00eancia", especial: "Especial", evento: "Evento" };
+        const tipoLabel = tipoLabels[ev.tipo] || "Evento";
+        const badgeHtml = '<span class="event-badge event-badge--tipo event-badge--tipo-' + (ev.tipo || "evento") + '">' + tipoLabel + '</span> '
+          + (upcoming
           ? '<span class="event-badge event-badge--upcoming">Pr\u00f3ximo</span>'
-          : '<span class="event-badge event-badge--past">Passado</span>';
+          : '<span class="event-badge event-badge--past">Passado</span>');
 
         const descHtml = ev.descricao
           ? '<p class="event-card__desc">' + UIServico.escaparHtml(ev.descricao) + "</p>"
@@ -154,6 +157,7 @@
       e.preventDefault();
       clearErrors();
 
+      const tipo = $("#inputTipo").value;
       const titulo = $("#inputTitulo").value.trim();
       const descricao = $("#inputDescricao").value.trim();
       const data = $("#inputData").value;
@@ -197,6 +201,7 @@
           data,
           horario: hora,
           local,
+          tipo,
           igrejaId: sessao.igrejaId
         });
 

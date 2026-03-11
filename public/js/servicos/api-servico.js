@@ -49,6 +49,11 @@ const ApiServico = (() => {
     return request("POST", "/api/auth/recuperar-senha", { email });
   }
 
+  // --- Igrejas publicas (para mapa) ---
+  function obterIgrejasPublicas() {
+    return request("GET", "/api/igrejas/publicas");
+  }
+
   // --- Requisicoes genericas ---
   function get(caminho) { return request("GET", caminho); }
   function post(caminho, dados) { return request("POST", caminho, dados); }
@@ -99,6 +104,7 @@ const ApiServico = (() => {
         horario: e.horario,
         hora: e.horario,
         local: e.local,
+        tipo: e.tipo || "evento",
         igrejaId: e.igreja_id,
         criadoEm: e.criado_em,
       };
@@ -112,6 +118,7 @@ const ApiServico = (() => {
       data: dados.data,
       horario: dados.horario || dados.hora || "",
       local: dados.local || "",
+      tipo: dados.tipo || "evento",
       igreja_id: dados.igrejaId,
     });
   }
@@ -202,6 +209,9 @@ const ApiServico = (() => {
         pedido: p.pedido,
         status: p.status,
         criadoEm: p.criado_em,
+        resposta: p.resposta || null,
+        respondidoEm: p.respondido_em || null,
+        respondidoPor: p.respondido_por || null,
       };
     });
   }
@@ -220,6 +230,8 @@ const ApiServico = (() => {
     const corpo = {};
     if (dados.pedido !== undefined) corpo.pedido = dados.pedido;
     if (dados.status !== undefined) corpo.status = dados.status;
+    if (dados.resposta !== undefined) corpo.resposta = dados.resposta;
+    if (dados.respondidoPor !== undefined) corpo.respondido_por = dados.respondidoPor;
     return put("/api/pedidos-oracao/" + id, corpo);
   }
 
@@ -228,7 +240,7 @@ const ApiServico = (() => {
     request,
     get, post, put, del,
     // Auth
-    registrarIgreja, registrarMembro, login, recuperarSenha,
+    registrarIgreja, registrarMembro, login, recuperarSenha, obterIgrejasPublicas,
     // Membros
     obterMembros, atualizarMembro,
     // Eventos

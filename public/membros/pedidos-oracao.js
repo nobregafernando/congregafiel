@@ -17,6 +17,12 @@
         avatar: "#topbarAvatar"
     });
 
+    /* ===== Nome da igreja no header ===== */
+    var nomeIgrejaEl = document.getElementById("nomeIgrejaHeader");
+    if (nomeIgrejaEl) {
+        nomeIgrejaEl.textContent = sessao.nomeIgreja || "sua igreja";
+    }
+
     /* ===== Helpers locais ===== */
     function formatarDataPedido(dateStr) {
         if (!dateStr) return "";
@@ -94,20 +100,35 @@
             meus.forEach(function (p) {
                 var statusClass = ({
                     "pendente": "status-badge--pendente",
+                    "orado": "status-badge--orado",
                     "atendido": "status-badge--atendido",
                     "respondido": "status-badge--respondido"
                 })[p.status] || "status-badge--pendente";
 
                 var statusLabel = ({
                     "pendente": "Pendente",
+                    "orado": "Estão orando",
                     "atendido": "Atendido",
                     "respondido": "Respondido"
                 })[p.status] || "Pendente";
 
+                var respostaHtml = "";
+                if (p.resposta) {
+                    respostaHtml =
+                        '<div class="pedido-resposta">' +
+                            '<div class="pedido-resposta__header">' +
+                                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+                                '<strong>' + esc(p.respondidoPor || sessao.nomeIgreja || "Igreja") + '</strong>' +
+                            '</div>' +
+                            '<p class="pedido-resposta__texto">' + esc(p.resposta) + '</p>' +
+                        '</div>';
+                }
+
                 var card = document.createElement("div");
-                card.className = "pedido-card";
+                card.className = "pedido-card" + (p.resposta ? " pedido-card--respondido" : "");
                 card.innerHTML =
                     '<div class="pedido-card-body">' + esc(p.pedido) + '</div>' +
+                    respostaHtml +
                     '<div class="pedido-card-footer">' +
                         '<span class="pedido-date">' +
                             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +

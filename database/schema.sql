@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS igrejas (
     codigo VARCHAR(10) UNIQUE NOT NULL,
     nome_pastor VARCHAR(200) DEFAULT '',
     email VARCHAR(200),
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
     senha_hash TEXT,
     criado_em TIMESTAMPTZ DEFAULT NOW(),
     atualizado_em TIMESTAMPTZ DEFAULT NOW(),
@@ -120,6 +122,7 @@ CREATE INDEX IF NOT EXISTS idx_contribuicoes_membro_id ON contribuicoes(membro_i
 CREATE INDEX IF NOT EXISTS idx_comunicados_igreja_id ON comunicados(igreja_id);
 CREATE INDEX IF NOT EXISTS idx_pedidos_oracao_igreja_id ON pedidos_oracao(igreja_id);
 CREATE INDEX IF NOT EXISTS idx_pedidos_oracao_membro_id ON pedidos_oracao(membro_id);
+CREATE INDEX IF NOT EXISTS idx_igrejas_localizacao ON igrejas(latitude, longitude);
 
 -- =============================================
 -- TRIGGER: atualizar atualizado_em automaticamente
@@ -181,9 +184,9 @@ ALTER TABLE pedidos_oracao ENABLE ROW LEVEL SECURITY;
 -- =============================================
 
 -- Igrejas
-INSERT INTO igrejas (id, nome, endereco, descricao, codigo, nome_pastor, email) VALUES
-    ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Igreja Batista Central', 'Rua da Paz, 123 - Centro, São Paulo/SP', 'Igreja tradicional fundada em 1950', 'CF1234', 'Pastor João Silva', 'central@congregafiel.com'),
-    ('b2c3d4e5-f6a7-8901-bcde-f12345678901', 'Comunidade Evangélica Graça', 'Av. Brasil, 456 - Jardim América, Rio de Janeiro/RJ', 'Comunidade focada em jovens e famílias', 'CF5678', 'Pastor Carlos Souza', 'graca@congregafiel.com')
+INSERT INTO igrejas (id, nome, endereco, descricao, codigo, nome_pastor, email, latitude, longitude) VALUES
+    ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Igreja Batista Central', 'Rua 14 de Julho, 1532 - Centro, Campo Grande/MS', 'Igreja tradicional fundada em 1950', 'CF1234', 'Pastor João Silva', 'central@congregafiel.com', -20.4628, -54.6156),
+    ('b2c3d4e5-f6a7-8901-bcde-f12345678901', 'Comunidade Evangélica Graça', 'Av. Afonso Pena, 2880 - Jardim dos Estados, Campo Grande/MS', 'Comunidade focada em jovens e famílias', 'CF5678', 'Pastor Carlos Souza', 'graca@congregafiel.com', -20.4539, -54.6107)
 ON CONFLICT (id) DO NOTHING;
 
 -- Membros
