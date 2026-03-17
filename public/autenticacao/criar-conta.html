@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Criar Conta | Congrega Fiel</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="criar-conta.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <div class="auth-card">
+    <a href="../index.html" class="auth-brand" aria-label="Voltar ao site">
+      <div class="auth-brand__logo">CF</div>
+      <div class="auth-brand__text">
+        <strong>Congrega Fiel</strong>
+        <span>Gestão da comunidade da igreja</span>
+      </div>
+    </a>
+
+    <h1>Criar sua conta</h1>
+    <p class="subtitle">Cadastre-se para acessar o sistema</p>
+
+    <div class="tabs" role="tablist" aria-label="Tipo de conta">
+      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="igreja" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21V9l-6-4-6 4v12"/><path d="M2 21h20"/><path d="M9 21v-6h6v6"/></svg>
+        Igreja
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="membro" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Membros
+      </button>
+    </div>
+
+    <!-- FORM IGREJA -->
+    <form id="formIgreja" class="tab-panel active" novalidate>
+      <div class="form-group">
+        <label for="nomePastor">Nome do pastor</label>
+        <div class="input-wrapper">
+          <span class="icon-left">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <input type="text" id="nomePastor" placeholder="Ex: Pastor João Silva" required />
+        </div>
+        <p class="error-msg" id="nomePastorError"></p>
+      </div>
+
+      <div class="form-group">
+        <label for="nomeIgreja">Nome da igreja</label>
+        <div class="input-wrapper">
+          <span class="icon-left">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 21V9l-6-4-6 4v12"/><path d="M2 21h20"/><path d="M9 21v-6h6v6"/></svg>
+          </span>
+          <input type="text" id="nomeIgreja" placeholder="Ex: Igreja Vida e Fé" required />
+        </div>
+        <p class="error-msg" id="nomeIgrejaError"></p>
+      </div>
+
+      <div class="form-group">
+        <label for="emailIgreja">E-mail</label>
+        <div class="input-wrapper">
+          <span class="icon-left">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><polyline points="22,7 12,13 2,7"/></svg>
+          </span>
+          <input type="email" id="emailIgreja" placeholder="pastor@email.com" autocomplete="email" required />
+        </div>
+        <p class="error-msg" id="emailIgrejaError"></p>
+      </div>
+
+      <div class="form-group">
+        <label for="senhaIgreja">Senha</label>
+        <div class="input-wrapper">
+          <span class="icon-left">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          <input type="password" id="senhaIgreja" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required />
+          <button type="button" class="toggle-password" aria-label="Mostrar senha" data-target="senhaIgreja">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon-eye-off" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/></svg>
+          </button>
+        </div>
+        <p class="error-msg" id="senhaIgrejaError"></p>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmarSenhaIgreja">Confirmar senha</label>
+        <div class="input-wrapper">
+          <span class="icon-left">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          <input type="password" id="confirmarSenhaIgreja" placeholder="Repita a senha" autocomplete="new-password" required />
+        </div>
+        <p class="error-msg" id="confirmarSenhaIgrejaError"></p>
+      </div>
+
+      <button type="submit" class="btn btn--primary">Criar conta da igreja</button>
+    </form>
+
+    <!-- FORM MEMBRO (layout lado a lado) -->
+    <form id="formMembro" class="tab-panel" novalidate>
+      <div class="registro-grid">
+        <!-- COLUNA ESQUERDA: Mapa -->
+        <div class="registro-mapa">
+          <div class="mapa-header">
+            <label>Encontre sua igreja</label>
+            <div class="busca-wrapper">
+              <svg class="busca-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="buscaIgreja" class="busca-input" placeholder="Pesquisar por nome ou endereço..." />
+            </div>
+          </div>
+          <div id="mapaIgrejas" class="mapa-igrejas"></div>
+          <div id="listaIgrejas" class="lista-igrejas">
+            <p class="lista-igrejas__loading">Carregando igrejas...</p>
+          </div>
+          <div id="igrejaSelecionada" class="igreja-selecionada" style="display:none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span id="igrejaSelecionadaNome"></span>
+            <button type="button" id="btnLimparIgreja" class="btn-limpar" aria-label="Limpar seleção">&times;</button>
+          </div>
+        </div>
+
+        <!-- COLUNA DIREITA: Formulário -->
+        <div class="registro-campos">
+          <div class="form-group">
+            <label for="codigoIgreja">Código da igreja</label>
+            <div class="input-wrapper">
+              <span class="icon-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/></svg>
+              </span>
+              <input type="text" id="codigoIgreja" placeholder="Selecione no mapa ou digite" maxlength="6" style="text-transform:uppercase" />
+            </div>
+            <p class="error-msg" id="codigoIgrejaError"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="nomeCompleto">Nome completo</label>
+            <div class="input-wrapper">
+              <span class="icon-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input type="text" id="nomeCompleto" placeholder="Seu nome completo" required />
+            </div>
+            <p class="error-msg" id="nomeCompletoError"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="emailMembro">E-mail</label>
+            <div class="input-wrapper">
+              <span class="icon-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><polyline points="22,7 12,13 2,7"/></svg>
+              </span>
+              <input type="email" id="emailMembro" placeholder="seu@email.com" autocomplete="email" required />
+            </div>
+            <p class="error-msg" id="emailMembroError"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="senhaMembro">Senha</label>
+            <div class="input-wrapper">
+              <span class="icon-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input type="password" id="senhaMembro" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required />
+              <button type="button" class="toggle-password" aria-label="Mostrar senha" data-target="senhaMembro">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon-eye-off" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/></svg>
+              </button>
+            </div>
+            <p class="error-msg" id="senhaMembroError"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmarSenhaMembro">Confirmar senha</label>
+            <div class="input-wrapper">
+              <span class="icon-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input type="password" id="confirmarSenhaMembro" placeholder="Repita a senha" autocomplete="new-password" required />
+            </div>
+            <p class="error-msg" id="confirmarSenhaMembroError"></p>
+          </div>
+
+          <button type="submit" class="btn btn--primary">Criar conta de membro</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="divider">ou</div>
+
+    <p class="auth-footer">
+      Já tem uma conta? <a href="login.html">Entrar</a>
+    </p>
+
+    <div style="text-align:center">
+      <a href="../index.html" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+        Voltar ao site
+      </a>
+    </div>
+  </div>
+
+  <!-- MODAL LOCALIZAÇÃO -->
+  <div class="modal-overlay" id="modalLocalizacao">
+    <div class="modal-card">
+      <div class="modal-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <h2 class="modal-title">Permitir localização?</h2>
+      <p class="modal-desc">Com sua localização, encontramos automaticamente a igreja mais próxima de você.</p>
+      <div class="modal-actions">
+        <button type="button" id="btnPermitirLocal" class="modal-btn modal-btn--primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Permitir
+        </button>
+        <button type="button" id="btnNegarLocal" class="modal-btn modal-btn--secondary">Agora não</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="../js/servicos/sessao-servico.js"></script>
+  <script src="../js/servicos/ui-servico.js"></script>
+  <script src="../js/servicos/api-servico.js"></script>
+  <script src="criar-conta.js"></script>
+</body>
+</html>

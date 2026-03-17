@@ -1,0 +1,33 @@
+# =============================================================
+# CongregaFiel — Configuração de Deploy (Render.com)
+# Blueprint para deploy automático dos dois serviços
+# =============================================================
+
+services:
+  # API Express.js (Node)
+  - type: web
+    name: congregafiel-express
+    runtime: node
+    rootDir: api-express
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+
+  # API FastAPI (Python)
+  - type: web
+    name: congregafiel-fastapi
+    runtime: python
+    rootDir: api-fastapi
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn servidor:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false

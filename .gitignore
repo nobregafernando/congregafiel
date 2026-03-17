@@ -31,3 +31,7 @@ venv/
 # Build output
 dist/
 build/
+
+# Firebase
+.firebase/
+.firebaserc
