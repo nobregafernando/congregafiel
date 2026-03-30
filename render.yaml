@@ -1,26 +1,16 @@
 # =============================================================
 # CongregaFiel — Configuração de Deploy (Render.com)
-# Blueprint para deploy automático dos dois serviços
+# Blueprint para deploy automático dos serviços
+# =============================================================
+# Arquitetura:
+#   Express (porta 3000) → API Gateway (proxy reverso)
+#   FastAPI (porta 8000) → Backend principal (lógica de negócio)
 # =============================================================
 
 services:
-  # API Express.js (Node)
+  # Backend Principal — FastAPI (Python)
   - type: web
-    name: congregafiel-express
-    runtime: node
-    rootDir: api-express
-    buildCommand: npm install
-    startCommand: npm start
-    plan: free
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SECRET_KEY
-        sync: false
-
-  # API FastAPI (Python)
-  - type: web
-    name: congregafiel-fastapi
+    name: congregafiel-backend
     runtime: python
     rootDir: api-fastapi
     buildCommand: pip install -r requirements.txt
@@ -30,4 +20,48 @@ services:
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SECRET_KEY
+        sync: false
+
+  # Auth Service — Node.js
+  - type: web
+    name: congregafiel-auth
+    runtime: node
+    rootDir: microservices/services/auth-service
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: SUPABASE_URL
+        fromService:
+          name: congregafiel-backend
+          type: web
+          property: envVar
+          envVarKey: SUPABASE_URL
+      - key: SUPABASE_SECRET_KEY
+        fromService:
+          name: congregafiel-backend
+          type: web
+          property: envVar
+          envVarKey: SUPABASE_SECRET_KEY
+
+  # API Gateway — Express.js (Node)
+  - type: web
+    name: congregafiel-gateway
+    runtime: node
+    rootDir: api-express
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: FASTAPI_URL
+        fromService:
+          name: congregafiel-backend
+          type: web
+          property: host
+      - key: AUTH_SERVICE_URL
+        fromService:
+          name: congregafiel-auth
+          type: web
+          property: host
+      - key: ALLOWED_ORIGINS
         sync: false

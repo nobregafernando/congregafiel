@@ -25,9 +25,9 @@ from supabase_client import supabase, criar_cliente_auth
 
 # -------------------- Configuração --------------------
 app = FastAPI(
-    title="CongregaFiel API",
-    description="API REST para gestão de comunidades eclesiásticas (com Supabase)",
-    version="2.0.0",
+    title="CongregaFiel API — Backend Principal",
+    description="API REST para gestão de comunidades eclesiásticas. Backend principal acessado via API Gateway Express.",
+    version="2.1.0",
 )
 
 app.add_middleware(
@@ -692,8 +692,9 @@ def remover_pedido_oracao(pedido_id: str):
 def raiz():
     """Retorna informações gerais sobre a API."""
     return {
-        "nome": "CongregaFiel API (FastAPI + Supabase)",
-        "versao": "2.0.0",
+        "nome": "CongregaFiel API — Backend Principal (FastAPI + Supabase)",
+        "versao": "2.1.0",
+        "descricao": "Backend principal. Acessado via API Gateway Express na porta 3000.",
         "documentacao": "/docs",
         "endpoints": {
             "auth_registrar_igreja": "/api/auth/registrar-igreja",

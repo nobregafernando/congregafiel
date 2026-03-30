@@ -1,7 +1,7 @@
 {
-  "name": "congregafiel-api-express",
-  "version": "1.0.0",
-  "description": "API REST do CongregaFiel com Express.js",
+  "name": "congregafiel-api-gateway",
+  "version": "3.0.0",
+  "description": "API Gateway do CongregaFiel — proxy reverso com JWT, circuit breaker e logging estruturado",
   "main": "servidor.js",
   "scripts": {
     "start": "node servidor.js",
@@ -13,7 +13,9 @@
   "dependencies": {
     "express": "^4.21.0",
     "cors": "^2.8.5",
-    "@supabase/supabase-js": "^2.45.0",
-    "dotenv": "^16.4.0"
+    "http-proxy-middleware": "^3.0.0",
+    "express-rate-limit": "^7.4.0",
+    "dotenv": "^16.4.0",
+    "jsonwebtoken": "^9.0.0"
   }
 }
