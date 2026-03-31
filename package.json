@@ -4,7 +4,10 @@
   "description": "**Sistema Web para Gestao de Comunidades Eclesiasticas**",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:frontend": "vitest run tests/unit/public",
+    "test:backend": "vitest run tests/unit/api-express"
   },
   "repository": {
     "type": "git",
@@ -17,6 +20,10 @@
     "url": "https://github.com/nobregafernando/congregafiel/issues"
   },
   "homepage": "https://github.com/nobregafernando/congregafiel#readme",
+  "devDependencies": {
+    "happy-dom": "^20.0.8",
+    "vitest": "^3.2.4"
+  },
   "dependencies": {
     "firebase": "^12.10.0"
   }

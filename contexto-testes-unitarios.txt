@@ -1,0 +1,177 @@
+ANALISE DOS TESTES UNITARIOS - CONGREGAFIEL
+Data da analise: 24/03/2026
+
+1) VISÃO GERAL
+- Framework de testes: Vitest
+- Configuração: vitest.config.cjs
+- Estrutura de testes unitarios:
+  - Backend: tests/unit/api-express/**/*.test.js (ambiente node)
+  - Frontend: tests/unit/public/**/*.test.js (ambiente happy-dom)
+- Quantidade de arquivos de teste unitario encontrados: 9
+  - Backend: 2
+  - Frontend: 7
+
+2) ONDE OS TESTES FORAM IMPLEMENTADOS
+
+2.1) Backend (API Express)
+- tests/unit/api-express/utils/pedidos-oracao-utils.test.js
+  - Alvo testado: api-express/utils/pedidos-oracao-utils.js
+  - Cobertura principal:
+    - montagem de payload de atualizacao
+    - preenchimento de respondido_em ao responder pedido
+    - preenchimento de respondido_em ao status "respondido"
+
+- tests/unit/api-express/utils/regras-auth.test.js
+  - Alvo testado: api-express/utils/regras-auth.js
+  - Cobertura principal:
+    - geracao de codigo da igreja
+    - validacoes de payload de:
+      - registrar igreja
+      - registrar membro
+      - login
+      - recuperar senha
+
+2.2) Frontend - Serviços
+- tests/unit/public/js/servicos/api-servico.test.js
+  - Alvo testado: public/js/servicos/api-servico.js
+  - Cobertura principal:
+    - envio de Authorization Bearer token
+    - tratamento de erro de resposta nao-OK
+    - mapeamento de membros (snake_case -> camelCase)
+    - defaults ao criar evento
+    - conversao de payload ao atualizar membro
+    - mapeamento de pedidos de oracao com campos opcionais nulos
+
+- tests/unit/public/js/servicos/sessao-servico.test.js
+  - Alvo testado: public/js/servicos/sessao-servico.js
+  - Cobertura principal:
+    - salvar e ler sessao no localStorage
+    - fallback para JSON invalido
+    - exigir autenticacao com redirecionamento
+    - encerramento de sessao com redirecionamento
+
+- tests/unit/public/js/servicos/ui-servico.test.js
+  - Alvo testado: public/js/servicos/ui-servico.js
+  - Cobertura principal:
+    - validacao de e-mail
+    - iniciais de nome
+    - escape de HTML
+    - formatacao monetaria BRL
+    - partes da data (dia/mes abreviado)
+
+2.3) Frontend - Utilitarios
+- tests/unit/public/js/utils/eventos-utils.test.js
+  - Alvo testado: public/js/utils/eventos-utils.js
+  - Cobertura principal:
+    - identificacao de evento futuro
+    - formatacao de data BR
+
+- tests/unit/public/js/utils/geolocalizacao-utils.test.js
+  - Alvo testado: public/js/utils/geolocalizacao-utils.js
+  - Cobertura principal:
+    - calculo de distancia (Haversine)
+    - formatacao de distancia (m/km)
+
+- tests/unit/public/js/utils/linha-do-tempo-utils.test.js
+  - Alvo testado: public/js/utils/linha-do-tempo-utils.js
+  - Cobertura principal:
+    - identificacao de evento proximo
+    - formatacao de data longa
+    - obtencao de mes/ano
+    - fallback de tipo de evento
+    - encontrar proximo evento
+
+- tests/unit/public/js/utils/pagamentos-utils.test.js
+  - Alvo testado: public/js/utils/pagamentos-utils.js
+  - Cobertura principal:
+    - parse de valor monetario
+    - fallback para entrada invalida
+    - data atual em ISO
+    - validacao de mes corrente
+
+3) EM QUAIS PAGINAS ESSES TESTES IMPACTAM
+
+3.1) Testes do ApiServico (public/js/servicos/api-servico.js)
+Impacto direto nas paginas que carregam esse servico:
+- public/autenticacao/criar-conta.html
+- public/autenticacao/login.html
+- public/autenticacao/recuperar-senha.html
+- public/igreja/comunicados.html
+- public/igreja/eventos.html
+- public/igreja/fieis.html
+- public/igreja/linha-do-tempo.html
+- public/igreja/pagamentos.html
+- public/igreja/painel.html
+- public/igreja/pedidos-oracao.html
+- public/membros/comunicados.html
+- public/membros/eventos.html
+- public/membros/linha-do-tempo.html
+- public/membros/pagamentos.html
+- public/membros/painel.html
+- public/membros/pedidos-oracao.html
+- public/membros/perfil.html
+
+3.2) Testes do SessaoServico (public/js/servicos/sessao-servico.js)
+Impacto direto nas paginas que usam controle de sessao/autenticacao:
+- public/autenticacao/criar-conta.html
+- public/autenticacao/login.html
+- public/autenticacao/recuperar-senha.html
+- public/igreja/comunicados.html
+- public/igreja/eventos.html
+- public/igreja/fieis.html
+- public/igreja/linha-do-tempo.html
+- public/igreja/pagamentos.html
+- public/igreja/painel.html
+- public/igreja/pedidos-oracao.html
+- public/membros/comunicados.html
+- public/membros/eventos.html
+- public/membros/linha-do-tempo.html
+- public/membros/pagamentos.html
+- public/membros/painel.html
+- public/membros/pedidos-oracao.html
+- public/membros/perfil.html
+
+3.3) Testes do UIServico (public/js/servicos/ui-servico.js)
+Impacto direto nas paginas que usam utilitarios de UI:
+- public/autenticacao/criar-conta.html
+- public/autenticacao/login.html
+- public/autenticacao/recuperar-senha.html
+- public/igreja/comunicados.html
+- public/igreja/eventos.html
+- public/igreja/fieis.html
+- public/igreja/linha-do-tempo.html
+- public/igreja/pagamentos.html
+- public/igreja/painel.html
+- public/igreja/pedidos-oracao.html
+- public/membros/comunicados.html
+- public/membros/eventos.html
+- public/membros/linha-do-tempo.html
+- public/membros/pagamentos.html
+- public/membros/painel.html
+- public/membros/pedidos-oracao.html
+- public/membros/perfil.html
+
+3.4) Testes dos Utils (public/js/utils/*.js)
+- eventos-utils.js, geolocalizacao-utils.js, linha-do-tempo-utils.js, pagamentos-utils.js
+- No estado atual do codigo, esses utilitarios estao testados unitariamente, porem nao foram encontrados como <script> direto nas paginas HTML.
+- Isso indica cobertura de logica utilitaria desacoplada, pronta para reutilizacao em paginas atuais/futuras.
+
+3.5) Testes de backend e relacao com paginas
+- pedidos-oracao-utils.js e regras-auth.js sao usados no backend (api-express/servidor.js), nao em HTML diretamente.
+- Impactam indiretamente as paginas de autenticacao e pedidos de oracao porque essas telas consomem os endpoints da API via ApiServico.
+
+4) ESTADO ATUAL DA EXECUCAO DOS TESTES
+- Comando executado: npm test
+- Resultado geral: falha na suite atual.
+- Principais pontos observados:
+  - A maior parte dos arquivos usa require("vitest"), e o Vitest 3 acusa incompatibilidade em modulos CommonJS.
+  - 1 teste funcional falhou em ui-servico.test.js por diferenca de dia (timezone) em obterPartesData.
+  - Aviso deprecado: environmentMatchGlobs em vitest.config.cjs.
+
+5) RESUMO EXECUTIVO
+- Testes unitarios foram implementados em backend (utils de auth e pedidos de oracao) e frontend (servicos centrais e utils).
+- A cobertura mais diretamente ligada a paginas esta em:
+  - ApiServico
+  - SessaoServico
+  - UIServico
+- Os utils novos (eventos/geolocalizacao/linha-do-tempo/pagamentos) estao com testes criados, mas ainda sem amarracao explicita por script direto nas paginas HTML.

@@ -7,6 +7,14 @@ const express = require("express");
 const cors = require("cors");
 const supabase = require("./supabase");
 const { criarClienteAuth } = require("./supabase");
+const {
+  gerarCodigoIgreja,
+  validarPayloadRegistroIgreja,
+  validarPayloadRegistroMembro,
+  validarPayloadLogin,
+  validarPayloadRecuperarSenha,
+} = require("./utils/regras-auth");
+const { montarAtualizacaoPedidoOracao } = require("./utils/pedidos-oracao-utils");
 
 const app = express();
 const PORTA = process.env.PORT || 3000;
@@ -19,22 +27,13 @@ app.use(express.json());
 // ROTAS — AUTENTICAÇÃO
 // =====================================
 
-function gerarCodigo(nomeIgreja) {
-  const letras = nomeIgreja.replace(/[^a-zA-ZÀ-ú]/g, "").substring(0, 2).toUpperCase();
-  const prefixo = letras.length >= 2 ? letras : "CF";
-  const digitos = String(Math.floor(1000 + Math.random() * 9000));
-  return prefixo + digitos;
-}
-
 // POST /api/auth/registrar-igreja — Cadastrar nova igreja + pastor
 app.post("/api/auth/registrar-igreja", async (req, res) => {
   const { nome_pastor, nome_igreja, email, senha, endereco, latitude, longitude } = req.body;
 
-  if (!nome_pastor || !nome_igreja || !email || !senha) {
-    return res.status(400).json({ erro: "Todos os campos são obrigatórios" });
-  }
-  if (senha.length < 6) {
-    return res.status(400).json({ erro: "A senha deve ter pelo menos 6 caracteres" });
+  const erroValidacao = validarPayloadRegistroIgreja(req.body);
+  if (erroValidacao) {
+    return res.status(400).json({ erro: erroValidacao });
   }
 
   try {
@@ -54,7 +53,7 @@ app.post("/api/auth/registrar-igreja", async (req, res) => {
     }
 
     const userId = authData.user.id;
-    const codigo = gerarCodigo(nome_igreja);
+    const codigo = gerarCodigoIgreja(nome_igreja);
 
     // 2. Inserir na tabela igrejas com o mesmo ID do auth
     const dadosIgreja = {
@@ -110,11 +109,9 @@ app.post("/api/auth/registrar-igreja", async (req, res) => {
 app.post("/api/auth/registrar-membro", async (req, res) => {
   const { nome_completo, email, telefone, codigo_igreja, senha } = req.body;
 
-  if (!nome_completo || !email || !codigo_igreja || !senha) {
-    return res.status(400).json({ erro: "Todos os campos são obrigatórios" });
-  }
-  if (senha.length < 6) {
-    return res.status(400).json({ erro: "A senha deve ter pelo menos 6 caracteres" });
+  const erroValidacao = validarPayloadRegistroMembro(req.body);
+  if (erroValidacao) {
+    return res.status(400).json({ erro: erroValidacao });
   }
 
   try {
@@ -187,8 +184,9 @@ app.post("/api/auth/registrar-membro", async (req, res) => {
 app.post("/api/auth/login", async (req, res) => {
   const { email, senha } = req.body;
 
-  if (!email || !senha) {
-    return res.status(400).json({ erro: "E-mail e senha são obrigatórios" });
+  const erroValidacao = validarPayloadLogin(req.body);
+  if (erroValidacao) {
+    return res.status(400).json({ erro: erroValidacao });
   }
 
   try {
@@ -263,8 +261,9 @@ app.post("/api/auth/login", async (req, res) => {
 app.post("/api/auth/recuperar-senha", async (req, res) => {
   const { email } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ erro: "E-mail é obrigatório" });
+  const erroValidacao = validarPayloadRecuperarSenha(req.body);
+  if (erroValidacao) {
+    return res.status(400).json({ erro: erroValidacao });
   }
 
   try {
@@ -774,15 +773,7 @@ app.post("/api/pedidos-oracao", async (req, res) => {
 
 // PUT /api/pedidos-oracao/:id — Atualizar status do pedido
 app.put("/api/pedidos-oracao/:id", async (req, res) => {
-  const { pedido, status, resposta, respondido_por } = req.body;
-  const atualizacao = {};
-  if (pedido !== undefined) atualizacao.pedido = pedido;
-  if (status !== undefined) atualizacao.status = status;
-  if (resposta !== undefined) atualizacao.resposta = resposta;
-  if (respondido_por !== undefined) atualizacao.respondido_por = respondido_por;
-  if (resposta !== undefined || status === "respondido") {
-    atualizacao.respondido_em = new Date().toISOString();
-  }
+  const atualizacao = montarAtualizacaoPedidoOracao(req.body);
 
   const { data, error } = await supabase
     .from("pedidos_oracao")
