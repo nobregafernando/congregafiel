@@ -1,0 +1,150 @@
+Proposta de Monetizacao - CongregaFiel
+
+Estrategia
+
+O melhor modelo para esse projeto e SaaS B2B para igrejas, onde a igreja paga e os membros usam sem custo. Isso combina com o que ja existe no sistema: gestao de membros, eventos, comunicados, pedidos de oracao, QR Code e financeiro.
+
+A logica comercial deve ser:
+"voces nao cobram pela fe; cobram por organizacao, automacao e gestao".
+
+Planos
+
+Plano Gratuito - R$ 0/mes
+Indicado para igrejas pequenas testarem a plataforma.
+Inclui:
+- 1 igreja
+- ate 80 membros
+- cadastro de membros
+- eventos
+- comunicados
+- pedidos de oracao
+- QR Code de convite basico
+- painel simples
+
+Limites:
+- sem exportacao
+- sem relatorios financeiros avancados
+- sem multiplos administradores
+- sem suporte prioritario
+
+Plano Essencial - R$ 49/mes
+Plano de entrada real para pequenas e medias igrejas.
+Inclui:
+- 1 igreja
+- ate 300 membros
+- tudo do gratuito
+- controle financeiro completo
+- historico de contribuicoes
+- relatorios mensais
+- filtros e organizacao melhor de pedidos de oracao
+- linha do tempo completa
+- 2 administradores
+
+Bom para vender porque ja resolve dor administrativa concreta.
+
+Plano Pro - R$ 99/mes
+Plano ideal para igrejas estruturadas.
+Inclui:
+- 1 igreja
+- ate 1000 membros
+- tudo do Essencial
+- exportacao de dados
+- relatorios avancados
+- mais indicadores no painel
+- ate 5 administradores/lideres
+- suporte prioritario
+- personalizacao basica da igreja no sistema
+- comunicacao em massa por email, se implementarem
+
+Plano Multiigrejas - R$ 199/mes
+Para ministerios, redes ou sedes com congregacoes.
+Inclui:
+- ate 5 igrejas
+- ate 5000 membros no total
+- visao consolidada por unidade
+- relatorios por igreja e geral
+- multiplos administradores
+- suporte prioritario forte
+
+Igreja extra: R$ 25/mes por unidade adicional.
+
+Add-ons
+
+Esses itens podem gerar receita sem mexer no plano principal:
+
+- Implantacao assistida: R$ 297 a R$ 790
+- Importacao de membros por planilha: R$ 149
+- Treinamento da equipe: R$ 197 por sessao
+- Suporte premium por WhatsApp: R$ 39/mes
+- Pagina publica da igreja: R$ 29/mes
+- Disparo de mensagens/emails: cobranca por pacote
+- Doacao online: taxa por transacao + mensalidade opcional
+
+Se implementarem pagamentos reais
+
+Modelo recomendado:
+- mensalidade normal do sistema
+- mais 1,99% a 3,99% por transacao, dependendo do parceiro
+
+Isso pode virar a principal fonte de receita depois.
+
+Como encaixar os recursos atuais
+
+Com base no que ja existe no projeto:
+
+No Gratuito:
+- membros
+- eventos
+- comunicados
+- pedidos de oracao
+- QR Code basico
+- painel simples
+
+No Essencial:
+- pagamentos/contribuicoes completos
+- relatorios financeiros mensais
+- historico por membro
+- mais filtros e organizacao
+
+No Pro:
+- exportacao
+- multiplos lideres
+- relatorios avancados
+- consolidado de metricas
+- suporte prioritario
+
+No Multiigrejas:
+- gestao de varias congregacoes
+- consolidacao por rede
+- administracao central
+
+Regras de negocio sugeridas
+
+1. Cada igreja e uma assinatura.
+2. O limite principal do plano e quantidade de membros.
+3. Recursos financeiros avancados ficam do Essencial para cima.
+4. Exportacao e multiplos administradores ficam no Pro.
+5. Gestao de varias igrejas fica so no Multiigrejas.
+6. Se a igreja ultrapassar o limite de membros, entra em periodo de carencia de 15 dias e depois precisa fazer upgrade.
+7. Plano anual tem desconto de 15%.
+8. Igrejas em implantacao podem ter 30 dias gratis.
+
+Preco anual sugerido
+
+- Essencial: R$ 490/ano
+- Pro: R$ 990/ano
+- Multiigrejas: R$ 1.990/ano
+
+Minha recomendacao pratica
+
+Se voces querem comecar simples, lancem so 3 ofertas:
+- Gratis
+- Essencial R$ 49/mes
+- Pro R$ 99/mes
+
+Ja e suficiente para validar mercado sem complicar operacao.
+
+Posicionamento comercial
+
+Use algo nessa linha:
+"Organize membros, contribuicoes, eventos e comunicacao da sua igreja em um so lugar."
