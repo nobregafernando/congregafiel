@@ -1,0 +1,16 @@
+Analise o contexto abaixo sobre testes unitarios do sistema CongregaFiel e gere um diagnostico objetivo com:
+1) mapa de cobertura por modulo (backend e frontend),
+2) impacto por pagina/tela,
+3) lacunas de teste prioritarias,
+4) riscos de regressao por area,
+5) plano de melhoria em fases (curto, medio e longo prazo).
+
+Regras de resposta:
+- Responder em Portugues (BR).
+- Ser tecnico e direto, sem linguagem genérica.
+- Destacar o que ja esta bom e o que esta faltando.
+- Incluir recomendacoes acionaveis com prioridade (alta/media/baixa).
+- Quando citar arquivos, usar o caminho completo relativo do projeto.
+
+Contexto:
+[COLE AQUI O CONTEUDO DO ARQUIVO contexto-testes-unitarios.txt]
