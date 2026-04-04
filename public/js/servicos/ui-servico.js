@@ -7,6 +7,21 @@ const UIServico = (() => {
 
   const MESES_CURTOS = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
+  function criarDataLocal(valor) {
+    if (typeof valor === "string") {
+      const correspondencia = valor.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (correspondencia) {
+        return new Date(
+          Number(correspondencia[1]),
+          Number(correspondencia[2]) - 1,
+          Number(correspondencia[3])
+        );
+      }
+    }
+
+    return new Date(valor);
+  }
+
   // ---------- TOAST ----------
   let toastTimer = null;
 
@@ -39,7 +54,7 @@ const UIServico = (() => {
   // ---------- FORMATACAO ----------
   function formatarData(dateStr, opcoes) {
     if (!dateStr) return "";
-    const d = new Date(dateStr);
+    const d = criarDataLocal(dateStr);
     const opts = opcoes || { day: "2-digit", month: "2-digit", year: "numeric" };
     return d.toLocaleDateString("pt-BR", opts);
   }
@@ -75,7 +90,7 @@ const UIServico = (() => {
   }
 
   function obterPartesData(dateStr) {
-    const d = new Date(dateStr);
+    const d = criarDataLocal(dateStr);
     return { dia: d.getDate(), mes: MESES_CURTOS[d.getMonth()] };
   }
 

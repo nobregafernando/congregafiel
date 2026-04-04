@@ -1,14 +1,28 @@
-/** @type {import('vitest/config').UserConfig} */
-module.exports = {
+const { defineConfig } = require("vitest/config");
+
+module.exports = defineConfig({
   test: {
-    include: ["tests/unit/**/*.test.js"],
-    globals: true,
-    environment: "node",
-    environmentMatchGlobs: [
-      ["tests/unit/public/**/*.test.js", "happy-dom"],
-      ["tests/unit/api-express/**/*.test.js", "node"],
+    projects: [
+      {
+        test: {
+          name: "api-express",
+          include: ["tests/unit/api-express/**/*.test.js"],
+          environment: "node",
+          globals: true,
+          clearMocks: true,
+          restoreMocks: true,
+        },
+      },
+      {
+        test: {
+          name: "public",
+          include: ["tests/unit/public/**/*.test.js"],
+          environment: "happy-dom",
+          globals: true,
+          clearMocks: true,
+          restoreMocks: true,
+        },
+      },
     ],
-    clearMocks: true,
-    restoreMocks: true,
   },
-};
+});
