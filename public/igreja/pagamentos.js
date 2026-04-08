@@ -58,6 +58,24 @@
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   }
 
+  // ========== CARREGAR MEMBROS ==========
+  let membrosLista = [];
+  async function carregarMembros() {
+    try {
+      membrosLista = await ApiServico.obterMembros(sessao.igrejaId);
+      const select = $("#membro");
+      if (!select) return;
+      select.innerHTML = '<option value="">Selecione o membro</option>' +
+        membrosLista
+          .sort((a, b) => (a.nome || "").localeCompare(b.nome || ""))
+          .map(m => `<option value="${m.id}">${UIServico.escaparHtml(m.nome)}</option>`)
+          .join("");
+    } catch (erro) {
+      console.error("Erro ao carregar membros:", erro);
+    }
+  }
+  await carregarMembros();
+
   // ========== RENDER ==========
   const totalMesEl = $("#totalMes");
   const totalDizimosEl = $("#totalDizimos");
@@ -172,16 +190,18 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const membro = ($("#membro").value || "").trim();
+      const membroId = ($("#membro").value || "").trim();
       const tipo = ($("#tipo").value || "").trim();
       const valorStr = ($("#valor").value || "").trim();
       const data = ($("#data").value || "").trim();
       const descricao = ($("#descricao").value || "").trim();
 
-      if (!membro) {
-        UIServico.mostrarToast("Informe o nome do membro", "error");
+      if (!membroId) {
+        UIServico.mostrarToast("Selecione um membro", "error");
         return;
       }
+      const membroSelecionado = membrosLista.find(m => m.id === membroId);
+      const membroNome = membroSelecionado ? membroSelecionado.nome : "";
       if (!tipo) {
         UIServico.mostrarToast("Selecione o tipo de pagamento", "error");
         return;
@@ -200,8 +220,8 @@
       try {
         await ApiServico.criarContribuicao({
           igrejaId: sessao.igrejaId,
-          membro,
-          membroId: sessao.id,
+          membro: membroNome,
+          membroId: membroId,
           tipo,
           valor,
           data,
