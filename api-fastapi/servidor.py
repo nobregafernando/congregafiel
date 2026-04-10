@@ -15,7 +15,7 @@ from modelos import (
     IgrejaCriar, IgrejaAtualizar,
     MembroCriar, MembroAtualizar,
     EventoCriar, EventoAtualizar,
-    ContribuicaoCriar,
+    ContribuicaoCriar, ContribuicaoAtualizar,
     ComunicadoCriar, ComunicadoAtualizar,
     PedidoOracaoCriar, PedidoOracaoAtualizar,
     RegistrarIgrejaReq, RegistrarMembroReq,
@@ -522,16 +522,84 @@ def buscar_contribuicao(contribuicao_id: str):
 @app.post("/api/contribuicoes", status_code=201, tags=["Contribuições"], summary="Registrar contribuição")
 def criar_contribuicao(contribuicao: ContribuicaoCriar):
     """Registra uma nova contribuição financeira."""
+    # 1. Validar que o membro existe
+    resposta_membro = supabase.table("membros").select("nome_completo").eq("id", contribuicao.membro_id).execute()
+    if not resposta_membro.data:
+        raise HTTPException(status_code=404, detail="Membro não encontrado")
+    
+    nome_membro = resposta_membro.data[0]["nome_completo"]
+    
+    # 2. Verificar duplicação (mesmo membro, tipo, valor, data ±1 dia)
+    from datetime import datetime, timedelta
+    data_obj = datetime.strptime(contribuicao.data, "%Y-%m-%d") if contribuicao.data else datetime.now()
+    data_inicio = (data_obj - timedelta(days=1)).strftime("%Y-%m-%d")
+    data_fim = (data_obj + timedelta(days=1)).strftime("%Y-%m-%d")
+    
+    duplicadas = supabase.table("contribuicoes").select("*").eq(
+        "membro_id", contribuicao.membro_id
+    ).eq("tipo", contribuicao.tipo).eq(
+        "valor", contribuicao.valor
+    ).gte("data", data_inicio).lte(
+        "data", data_fim
+    ).execute()
+    
+    aviso_duplicacao = None
+    if duplicadas.data:
+        aviso_duplicacao = f"Aviso: Encontrada {len(duplicadas.data)} contribuição(ões) similar(es) para este membro no período. Confirme se deseja registrar novamente."
+    
+    # 3. Preparar dados da contribuição
     dados = {
         "membro_id": contribuicao.membro_id,
         "igreja_id": contribuicao.igreja_id,
-        "membro_nome": contribuicao.membro_nome or "",
+        "membro_nome": nome_membro,
         "tipo": contribuicao.tipo,
         "valor": contribuicao.valor,
         "data": contribuicao.data or datetime.now().strftime("%Y-%m-%d"),
         "descricao": contribuicao.descricao or "",
     }
     resposta = supabase.table("contribuicoes").insert(dados).execute()
+    
+    resultado = resposta.data[0]
+    if aviso_duplicacao:
+        resultado["aviso"] = aviso_duplicacao
+    
+    return resultado
+
+
+@app.put("/api/contribuicoes/{contribuicao_id}", tags=["Contribuições"], summary="Atualizar contribuição")
+def atualizar_contribuicao(contribuicao_id: str, atualizacao: ContribuicaoAtualizar):
+    """Atualiza uma contribuição existente (tipo, valor, data, descrição)."""
+    # 1. Buscar contribuição existente
+    resposta_atual = supabase.table("contribuicoes").select("*").eq("id", contribuicao_id).execute()
+    if not resposta_atual.data:
+        raise HTTPException(status_code=404, detail="Contribuição não encontrada")
+    
+    # 2. Preparar dados para atualizar (apenas campos fornecidos)
+    dados_atualizacao = {
+        "atualizado_em": datetime.now().isoformat(),
+    }
+    
+    if atualizacao.tipo is not None:
+        if atualizacao.tipo not in ["dizimo", "oferta", "doacao", "outro"]:
+            raise HTTPException(status_code=400, detail="Tipo inválido")
+        dados_atualizacao["tipo"] = atualizacao.tipo
+    
+    if atualizacao.valor is not None:
+        if atualizacao.valor <= 0:
+            raise HTTPException(status_code=400, detail="Valor deve ser maior que zero")
+        dados_atualizacao["valor"] = atualizacao.valor
+    
+    if atualizacao.data is not None:
+        dados_atualizacao["data"] = atualizacao.data
+    
+    if atualizacao.descricao is not None:
+        dados_atualizacao["descricao"] = atualizacao.descricao
+    
+    # 3. Executar atualização
+    resposta = supabase.table("contribuicoes").update(dados_atualizacao).eq("id", contribuicao_id).execute()
+    if not resposta.data:
+        raise HTTPException(status_code=500, detail="Erro ao atualizar contribuição")
+    
     return resposta.data[0]
 
 
