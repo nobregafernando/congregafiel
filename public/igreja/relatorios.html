@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios Financeiros - CongregaFiel</title>
+    <link rel="stylesheet" href="relatorios.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">📊 Relatórios Financeiros</h1>
+            <button id="btn-logout" class="btn btn-outline">Sair</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="../painel.html">Painel</a> / <span>Relatórios Financeiros</span>
+        </div>
+
+        <!-- Seleção de Relatório -->
+        <div class="relatorio-selector">
+            <h2>Selecione um Relatório</h2>
+            <div class="selector-buttons">
+                <button class="btn-report active" data-report="resumo-mensal">
+                    📅 Resumo Mensal
+                </button>
+                <button class="btn-report" data-report="historico-membro">
+                    👤 Histórico Membro
+                </button>
+                <button class="btn-report" data-report="comparativo-anual">
+                    📈 Comparativo Anual
+                </button>
+                <button class="btn-report" data-report="top-contribuintes">
+                    🏆 Top Contribuintes
+                </button>
+                <button class="btn-report" data-report="inadimplentes">
+                    ⚠️ Inadimplentes
+                </button>
+                <button class="btn-report" data-report="fluxo-caixa">
+                    💰 Fluxo de Caixa
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-panel" id="filters-panel">
+            <h3>Filtros</h3>
+            <div class="filters-container" id="filters-container">
+                <!-- Filtros dinâmicos serão inseridos aqui -->
+            </div>
+            <div class="filter-actions">
+                <button id="btn-gerar-relatorio" class="btn btn-primary">Gerar Relatório</button>
+                <button id="btn-exportar-pdf" class="btn btn-secondary">📥 Exportar PDF</button>
+            </div>
+        </div>
+
+        <!-- Relatório -->
+        <div class="relatorio-container" id="relatorio-container">
+            <!-- Conteúdo do relatório será inserido aqui -->
+        </div>
+    </div>
+
+    <!-- Modal de Carregamento -->
+    <div id="loading-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="spinner"></div>
+            <p>Gerando relatório...</p>
+        </div>
+    </div>
+
+    <!-- Modal de Erro -->
+    <div id="error-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Erro ao gerar relatório</h3>
+            <p id="error-message"></p>
+            <button class="btn btn-primary" onclick="document.getElementById('error-modal').classList.add('hidden')">
+                Fechar
+            </button>
+        </div>
+    </div>
+
+    <script src="../js/servicos/firebase-servico.js"></script>
+    <script src="../js/servicos/api-servico.js"></script>
+    <script src="relatorios.js"></script>
+</body>
+</html>

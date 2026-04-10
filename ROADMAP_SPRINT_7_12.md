@@ -1,9 +1,9 @@
 # ROADMAP CONGREGA FIEL - Sprint 7-12
 
-**Status:** Sprint 7 ✅ Concluída | Sprint 8-12 Em Planejamento  
+**Status:** Sprint 7 ✅ Concluída | Sprint 8 🚀 Em Progresso | Sprint 9-12 Em Planejamento  
 **Data de Início:** 10 de abril de 2026  
 **Horizonte:** 12 semanas (3 meses)  
-**Última Atualização:** 10 de abril de 2026 - Sprint 7 Concluída
+**Última Atualização:** 10 de abril de 2026 - Sprint 8 Iniciada
 
 ---
 

@@ -15,6 +15,16 @@ module.exports = defineConfig({
       },
       {
         test: {
+          name: "api-fastapi",
+          include: ["tests/unit/api-fastapi/**/*.test.js"],
+          environment: "node",
+          globals: true,
+          clearMocks: true,
+          restoreMocks: true,
+        },
+      },
+      {
+        test: {
           name: "public",
           include: ["tests/unit/public/**/*.test.js"],
           environment: "happy-dom",

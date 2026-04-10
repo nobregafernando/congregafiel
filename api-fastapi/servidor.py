@@ -22,6 +22,10 @@ from modelos import (
     LoginReq, RecuperarSenhaReq,
 )
 from supabase_client import supabase, criar_cliente_auth
+from relatorios_utils import (
+    resumo_mensal, historico_membro, comparativo_anual,
+    top_contribuintes, inadimplentes, fluxo_caixa
+)
 
 # -------------------- Configuração --------------------
 app = FastAPI(
@@ -750,6 +754,85 @@ def remover_pedido_oracao(pedido_id: str):
     if not resposta.data:
         raise HTTPException(status_code=404, detail="Pedido de oração não encontrado")
     return {"mensagem": "Pedido removido com sucesso", "pedido": resposta.data[0]}
+
+
+# =============================================
+# ROTAS — RELATÓRIOS FINANCEIROS
+# =============================================
+
+@app.get("/api/relatorios/resumo-mensal", tags=["Relatórios"], summary="Resumo mensal de contribuições")
+def get_resumo_mensal(
+    data_inicio: str = Query(..., description="Data início YYYY-MM-DD"),
+    data_fim: str = Query(..., description="Data fim YYYY-MM-DD"),
+):
+    """Retorna resumo mensal de contribuições (total por mês e por tipo)."""
+    resultado = resumo_mensal(data_inicio, data_fim)
+    if "erro" in resultado:
+        raise HTTPException(status_code=500, detail=resultado["erro"])
+    return resultado
+
+
+@app.get("/api/relatorios/historico/{membro_id}", tags=["Relatórios"], summary="Histórico de membro")
+def get_historico_membro(
+    membro_id: str,
+    data_inicio: str = Query(None, description="Data início YYYY-MM-DD (opcional)"),
+    data_fim: str = Query(None, description="Data fim YYYY-MM-DD (opcional)"),
+):
+    """Retorna histórico de contribuições de um membro específico."""
+    resultado = historico_membro(membro_id, data_inicio, data_fim)
+    if "status" in resultado and resultado["status"] == 404:
+        raise HTTPException(status_code=404, detail=resultado["erro"])
+    if "erro" in resultado:
+        raise HTTPException(status_code=500, detail=resultado["erro"])
+    return resultado
+
+
+@app.get("/api/relatorios/comparativo-anual", tags=["Relatórios"], summary="Comparativo anual")
+def get_comparativo_anual(
+    ano1: str = Query(..., description="Primeiro ano YYYY"),
+    ano2: str = Query(..., description="Segundo ano YYYY"),
+):
+    """Compara contribuições entre dois anos (mês a mês)."""
+    resultado = comparativo_anual(ano1, ano2)
+    if "erro" in resultado:
+        raise HTTPException(status_code=500, detail=resultado["erro"])
+    return resultado
+
+
+@app.get("/api/relatorios/top-contribuintes", tags=["Relatórios"], summary="Top contribuintes")
+def get_top_contribuintes(
+    limite: int = Query(10, description="Quantidade máxima de resultados"),
+    data_inicio: str = Query(None, description="Data início YYYY-MM-DD (opcional)"),
+    data_fim: str = Query(None, description="Data fim YYYY-MM-DD (opcional)"),
+):
+    """Retorna ranking dos maiores contribuintes no período."""
+    resultado = top_contribuintes(limite, data_inicio, data_fim)
+    if "erro" in resultado:
+        raise HTTPException(status_code=500, detail=resultado["erro"])
+    return resultado
+
+
+@app.get("/api/relatorios/inadimplentes", tags=["Relatórios"], summary="Membros inadimplentes")
+def get_inadimplentes(
+    dias_atraso: int = Query(30, description="Dias de atraso (padrão 30 dias)"),
+):
+    """Retorna membros com pagamentos atrasados."""
+    resultado = inadimplentes(dias_atraso)
+    if "erro" in resultado:
+        raise HTTPException(status_code=500, detail=resultado["erro"])
+    return resultado
+
+
+@app.get("/api/relatorios/fluxo-caixa", tags=["Relatórios"], summary="Fluxo de caixa")
+def get_fluxo_caixa(
+    data_inicio: str = Query(..., description="Data início YYYY-MM-DD"),
+    data_fim: str = Query(..., description="Data fim YYYY-MM-DD"),
+):
+    """Retorna fluxo de caixa dia a dia com saldo acumulado."""
+    resultado = fluxo_caixa(data_inicio, data_fim)
+    if "erro" in resultado:
+        raise HTTPException(status_code=500, detail=resultado["erro"])
+    return resultado
 
 
 # =============================================
