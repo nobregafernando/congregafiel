@@ -9,7 +9,7 @@ describe("SessaoServico", () => {
 
   beforeEach(() => {
     localStorage.clear();
-    window.history.pushState({}, "", "https://app.local/inicio.html");
+    window.history.pushState({}, "", "/inicio.html");
   });
 
   it("salva e obtém sessão no localStorage", () => {

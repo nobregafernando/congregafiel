@@ -11,7 +11,7 @@ describe("ApiServico", () => {
   let ApiServico;
 
   beforeAll(() => {
-    window.history.pushState({}, "", "http://localhost:5500/");
+    window.history.pushState({}, "", "/");
     ApiServico = carregarScript("public/js/servicos/api-servico.js", "ApiServico");
   });
 

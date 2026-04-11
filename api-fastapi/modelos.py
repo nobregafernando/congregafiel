@@ -75,6 +75,13 @@ class ContribuicaoCriar(BaseModel):
     descricao: Optional[str] = Field("", description="Descrição adicional")
 
 
+class ContribuicaoAtualizar(BaseModel):
+    tipo: Optional[str] = Field(None, description="Tipo: dizimo, oferta, doacao ou outro")
+    valor: Optional[float] = Field(None, gt=0, description="Valor da contribuição")
+    data: Optional[str] = Field(None, description="Data no formato AAAA-MM-DD")
+    descricao: Optional[str] = Field(None, description="Descrição adicional")
+
+
 # -------------------- Comunicado --------------------
 class ComunicadoCriar(BaseModel):
     igreja_id: str = Field(..., description="UUID da igreja")

@@ -9,7 +9,12 @@
 
   function parseMoneyInput(str) {
     if (!str) return 0;
-    const cleaned = str.replace(/[^\d,.-]/g, "").replace(",", ".");
+
+    const cleaned = str
+      .replace(/[^\d,.-]/g, "")
+      .replace(/\./g, "")
+      .replace(",", ".");
+
     const num = parseFloat(cleaned);
     return isNaN(num) ? 0 : Math.round(num * 100) / 100;
   }

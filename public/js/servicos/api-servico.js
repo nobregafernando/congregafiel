@@ -150,8 +150,7 @@ const ApiServico = (() => {
   async function criarContribuicao(dados) {
     const sessao = JSON.parse(localStorage.getItem("cf_sessao") || "null");
     return post("/api/contribuicoes", {
-      membro_nome: dados.membro || "",
-      membro_id: dados.membroId || (sessao ? sessao.id : undefined),
+      membro_id: dados.membroId,
       igreja_id: dados.igrejaId,
       tipo: dados.tipo,
       valor: dados.valor,
@@ -162,6 +161,15 @@ const ApiServico = (() => {
 
   async function removerContribuicao(id) {
     return del("/api/contribuicoes/" + id);
+  }
+
+  async function atualizarContribuicao(id, dados) {
+    return put("/api/contribuicoes/" + id, {
+      tipo: dados.tipo || undefined,
+      valor: dados.valor || undefined,
+      data: dados.data || undefined,
+      descricao: dados.descricao !== undefined ? dados.descricao : undefined,
+    });
   }
 
   // =============================================
@@ -246,7 +254,7 @@ const ApiServico = (() => {
     // Eventos
     obterEventos, criarEvento, removerEvento,
     // Contribuicoes
-    obterContribuicoes, criarContribuicao, removerContribuicao,
+    obterContribuicoes, criarContribuicao, atualizarContribuicao, removerContribuicao,
     // Comunicados
     obterComunicados, criarComunicado, removerComunicado,
     // Pedidos de Oracao
