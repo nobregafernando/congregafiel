@@ -20,6 +20,7 @@ const PORTA = process.env.PORT || 3000;
 
 const FASTAPI_URL = process.env.FASTAPI_URL || "http://localhost:8000";
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || "http://localhost:4001";
+const PAYMENT_SERVICE_URL = process.env.PAYMENT_SERVICE_URL || "http://localhost:4008";
 
 app.use(requestId);
 app.use(logger);
@@ -59,9 +60,10 @@ async function consultarStatus(url, rota = "/") {
 }
 
 app.get("/health", async (_req, res) => {
-  const [fastapiStatus, authStatus] = await Promise.all([
+  const [fastapiStatus, authStatus, paymentStatus] = await Promise.all([
     consultarStatus(FASTAPI_URL, "/"),
     consultarStatus(AUTH_SERVICE_URL, "/health"),
+    consultarStatus(PAYMENT_SERVICE_URL, "/health"),
   ]);
 
   res.json({
@@ -71,6 +73,7 @@ app.get("/health", async (_req, res) => {
     backends: {
       core: { url: FASTAPI_URL, status: fastapiStatus },
       auth: { url: AUTH_SERVICE_URL, status: authStatus },
+      payments: { url: PAYMENT_SERVICE_URL, status: paymentStatus },
     },
     circuito: circuitBreaker.status(),
     timestamp: new Date().toISOString(),
@@ -85,6 +88,7 @@ app.get("/", (_req, res) => {
     backends: {
       auth: AUTH_SERVICE_URL,
       core: FASTAPI_URL,
+      payments: PAYMENT_SERVICE_URL,
     },
     rotas: {
       health: "/health",
@@ -94,6 +98,8 @@ app.get("/", (_req, res) => {
       membros: "/api/membros/*",
       eventos: "/api/eventos/*",
       contribuicoes: "/api/contribuicoes/*",
+      pagamentos: "/api/pagamentos/*",
+      relatorios_pagamentos: "/api/relatorios/pagamentos",
       comunicados: "/api/comunicados/*",
       pedidos_oracao: "/api/pedidos-oracao/*",
     },
@@ -108,6 +114,12 @@ function criarProxy(target) {
       proxyReq: (proxyReq, req) => {
         if (req.requestId) {
           proxyReq.setHeader("X-Request-Id", req.requestId);
+        }
+
+        if (req.usuario) {
+          proxyReq.setHeader("x-usuario-id", req.usuario.id || "");
+          proxyReq.setHeader("x-usuario-email", req.usuario.email || "");
+          proxyReq.setHeader("x-usuario-role", req.usuario.role || "");
         }
       },
       proxyRes: () => {
@@ -134,6 +146,8 @@ app.use("/api/igrejas", verificarJwt, circuitBreakerMiddleware, criarProxy(FASTA
 app.use("/api/membros", verificarJwt, circuitBreakerMiddleware, criarProxy(FASTAPI_URL));
 app.use("/api/eventos", verificarJwt, circuitBreakerMiddleware, criarProxy(FASTAPI_URL));
 app.use("/api/contribuicoes", verificarJwt, circuitBreakerMiddleware, criarProxy(FASTAPI_URL));
+app.use("/api/pagamentos", verificarJwt, circuitBreakerMiddleware, criarProxy(PAYMENT_SERVICE_URL));
+app.use("/api/relatorios/pagamentos", verificarJwt, circuitBreakerMiddleware, criarProxy(PAYMENT_SERVICE_URL));
 app.use("/api/comunicados", verificarJwt, circuitBreakerMiddleware, criarProxy(FASTAPI_URL));
 app.use("/api/pedidos-oracao", verificarJwt, circuitBreakerMiddleware, criarProxy(FASTAPI_URL));
 
@@ -154,6 +168,7 @@ if (process.env.VERCEL !== "1") {
     console.log(`API Gateway rodando na porta ${PORTA}`);
     console.log(`Auth Service -> ${AUTH_SERVICE_URL}`);
     console.log(`Core Service -> ${FASTAPI_URL}`);
+    console.log(`Payment Service -> ${PAYMENT_SERVICE_URL}`);
   });
 }
 
