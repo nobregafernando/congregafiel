@@ -260,6 +260,29 @@
     setupModalEvents();
     setupRevealOnScroll();
 
+    // Registrar Service Worker para PWA
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js", { scope: "/" })
+        .then((registration) => {
+          console.log("[PWA] Service Worker registrado:", registration);
+          
+          // Monitorar atualizações
+          registration.addEventListener("updatefound", () => {
+            const newWorker = registration.installing;
+            newWorker?.addEventListener("statechange", () => {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                console.log("[PWA] Nova versão disponível");
+                showToast("Nova versão disponível. Recarregue para atualizar.");
+              }
+            });
+          });
+        })
+        .catch((err) => {
+          console.error("[PWA] Erro ao registrar SW:", err);
+        });
+    }
+
     // Fecha menu mobile se mudar para desktop
     window.addEventListener("resize", () => {
       if (window.innerWidth > 820) {

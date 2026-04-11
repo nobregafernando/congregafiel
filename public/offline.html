@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#6366f1">
+  <title>CongregaFiel — Offline</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .offline-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      padding: 40px 30px;
+      text-align: center;
+      max-width: 400px;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    h1 {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .status {
+      background: #f5f5f5;
+      border-left: 4px solid #ff6b6b;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      text-align: left;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .status-icon {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: #ff6b6b;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 49%, 100% {
+        opacity: 0;
+      }
+      50%, 99% {
+        opacity: 1;
+      }
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-direction: column;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-retry {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-retry:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-retry:active {
+      transform: translateY(0);
+    }
+
+    .btn-offline {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .btn-offline:hover {
+      background: #efefef;
+    }
+
+    .tip {
+      font-size: 12px;
+      color: #999;
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 480px) {
+      .offline-container {
+        padding: 30px 20px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      .icon {
+        font-size: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="icon">📡</div>
+    <h1>Sem Conexão</h1>
+    <p class="subtitle">Parece que você está offline. Alguns recursos podem não estar disponíveis.</p>
+    
+    <div class="status">
+      <span class="status-icon"></span>
+      <strong>Status:</strong> Offline
+    </div>
+
+    <div class="actions">
+      <button class="btn-retry" onclick="location.reload()">
+        Tentar Novamente
+      </button>
+      <button class="btn-offline" onclick="goHome()">
+        Voltar ao Início
+      </button>
+    </div>
+
+    <p class="tip">
+      Dica: Confira sua conexão de internet e tente novamente.
+      Alguns dados em cache podem estar disponíveis offline.
+    </p>
+  </div>
+
+  <script>
+    function goHome() {
+      window.location.href = "/index.html";
+    }
+
+    // Monitorar reconexão
+    window.addEventListener("online", () => {
+      console.log("[Offline] Conexão restaurada");
+      // Recarregar página automaticamente após 2 segundos
+      setTimeout(() => {
+        location.reload();
+      }, 2000);
+    });
+
+    window.addEventListener("offline", () => {
+      console.log("[Offline] Conexão perdida");
+    });
+  </script>
+</body>
+</html>

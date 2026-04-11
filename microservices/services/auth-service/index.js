@@ -8,6 +8,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const { supabase, criarClienteAuth } = require("./supabase");
 
 const app = express();
@@ -267,6 +268,217 @@ app.post("/api/auth/recuperar-senha", async (req, res) => {
     });
     if (error) return res.status(400).json({ erro: error.message });
     return res.json({ mensagem: "E-mail de recuperação enviado com sucesso" });
+  } catch (err) {
+    return res.status(500).json({ erro: "Erro interno: " + err.message });
+  }
+});
+
+// -------------------------------------------------------
+// POST /api/auth/logout
+// Revoga o token adicionando-o à blacklist
+// -------------------------------------------------------
+app.post("/api/auth/logout", async (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      erro: "Token não fornecido",
+      detalhe: "Inclua o header: Authorization: Bearer <token>",
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    // Decodificar o token para extrair o jti (JWT ID) e user ID
+    const decoded = jwt.decode(token);
+    
+    if (!decoded || !decoded.jti) {
+      return res.status(401).json({ erro: "Token inválido" });
+    }
+
+    // Inserir na tabela token_blacklist do Supabase
+    const { error: dbError } = await supabase
+      .from("token_blacklist")
+      .insert({
+        token_jti: decoded.jti,
+        usuario_id: decoded.sub,
+        revogado_em: new Date().toISOString(),
+        motivo: "logout",
+      });
+
+    if (dbError && !dbError.message.includes("duplicate")) {
+      console.error("[logout] Erro ao inserir na blacklist:", dbError);
+      // Não falhar se não conseguir inserir, apenas registrar o erro
+    }
+
+    return res.json({ mensagem: "Logout realizado com sucesso" });
+  } catch (err) {
+    return res.status(500).json({ erro: "Erro interno: " + err.message });
+  }
+});
+
+// -------------------------------------------------------
+// POST /api/auth/refresh
+// Renova o access token usando refresh token
+// -------------------------------------------------------
+app.post("/api/auth/refresh", async (req, res) => {
+  const { refresh_token } = req.body;
+
+  if (!refresh_token) {
+    return res.status(401).json({ erro: "Refresh token não fornecido" });
+  }
+
+  try {
+    // 1. Decodificar refresh token
+    const decoded = jwt.decode(refresh_token);
+    
+    if (!decoded) {
+      return res.status(401).json({ erro: "Refresh token inválido" });
+    }
+
+    // 2. Verificar se refresh token ainda é válido
+    const { data: tokenRecord, error: dbError } = await supabase
+      .from("refresh_tokens")
+      .select("*")
+      .eq("refresh_token", refresh_token)
+      .eq("user_id", decoded.sub)
+      .maybeSingle();
+
+    if (dbError || !tokenRecord || tokenRecord.revogado_em) {
+      return res.status(401).json({ erro: "Refresh token expirado ou revogado" });
+    }
+
+    // 3. Verificar expiração
+    if (new Date(tokenRecord.expira_em) < new Date()) {
+      return res.status(401).json({ erro: "Refresh token expirado" });
+    }
+
+    // 4. Gerar novo access token
+    const JWT_SECRET = process.env.SUPABASE_JWT_SECRET;
+    const newAccessToken = jwt.sign(
+      {
+        sub: decoded.sub,
+        email: decoded.email,
+        role: decoded.role,
+        jti: `jti-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + (60 * 60), // 1 hora
+      },
+      JWT_SECRET,
+      { algorithm: "HS256" }
+    );
+
+    return res.json({
+      access_token: newAccessToken,
+      token_type: "Bearer",
+      expires_in: 3600,
+    });
+  } catch (err) {
+    return res.status(500).json({ erro: "Erro interno: " + err.message });
+  }
+});
+
+// -------------------------------------------------------
+// POST /api/auth/revoke-all
+// Revoga todos os refresh tokens de um usuário
+// -------------------------------------------------------
+app.post("/api/auth/revoke-all", async (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      erro: "Token não fornecido",
+      detalhe: "Inclua o header: Authorization: Bearer <token>",
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.decode(token);
+    
+    if (!decoded || !decoded.sub) {
+      return res.status(401).json({ erro: "Token inválido" });
+    }
+
+    // Revogar todos os refresh tokens deste usuário
+    const { error } = await supabase
+      .from("refresh_tokens")
+      .update({ revogado_em: new Date().toISOString() })
+      .eq("user_id", decoded.sub)
+      .is("revogado_em", null);
+
+    if (error) {
+      console.error("[revoke-all] Erro:", error);
+      return res.status(500).json({ erro: "Erro ao revogar tokens" });
+    }
+
+    return res.json({ mensagem: "Todos os tokens foram revogados com sucesso" });
+  } catch (err) {
+    return res.status(500).json({ erro: "Erro interno: " + err.message });
+  }
+});
+
+// -------------------------------------------------------
+// POST /api/auth/register-fcm-token
+// Registra token FCM do dispositivo para notificações push
+// -------------------------------------------------------
+app.post("/api/auth/register-fcm-token", async (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      erro: "Token não fornecido",
+      detalhe: "Inclua o header: Authorization: Bearer <token>",
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+  const { fcmToken, deviceType } = req.body;
+
+  if (!fcmToken) {
+    return res.status(400).json({ erro: "fcmToken é obrigatório" });
+  }
+
+  if (!["web", "ios", "android"].includes(deviceType)) {
+    return res.status(400).json({ erro: "deviceType deve ser: web, ios ou android" });
+  }
+
+  try {
+    // 1. Decodificar token para obter user_id
+    const decoded = jwt.decode(token);
+    
+    if (!decoded || !decoded.sub) {
+      return res.status(401).json({ erro: "Token inválido" });
+    }
+
+    const userId = decoded.sub;
+
+    // 2. Upsert token FCM na tabela usuario_tokens_fcm
+    const { data, error } = await supabase
+      .from("usuario_tokens_fcm")
+      .upsert(
+        {
+          usuario_id: userId,
+          fcm_token: fcmToken,
+          device_type: deviceType,
+          atualizado_em: new Date().toISOString(),
+        },
+        { onConflict: "fcm_token" } // Conflito na chave única
+      )
+      .select()
+      .single();
+
+    if (error) {
+      console.error("[register-fcm-token] BD erro:", error);
+      return res.status(500).json({ erro: "Erro ao salvar token FCM" });
+    }
+
+    return res.json({
+      mensagem: "Token FCM registrado com sucesso",
+      token_id: data.id,
+    });
   } catch (err) {
     return res.status(500).json({ erro: "Erro interno: " + err.message });
   }

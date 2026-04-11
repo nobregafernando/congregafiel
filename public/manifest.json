@@ -1,0 +1,105 @@
+{
+  "name": "CongregaFiel - Gestão de Igrejas",
+  "short_name": "CongregaFiel",
+  "description": "Plataforma de gestão administrativa para igrejas evangélicas",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#6366f1",
+  "background_color": "#ffffff",
+  
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshots/screenshot-2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+
+  "categories": ["productivity", "business"],
+
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Ir para o painel principal",
+      "url": "/igreja/painel.html?shortcut=dashboard",
+      "icons": [
+        {
+          "src": "/icons/shortcuts/dashboard-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Membros",
+      "short_name": "Membros",
+      "description": "Gerenciar membros da igreja",
+      "url": "/igreja/fieis.html?shortcut=members",
+      "icons": [
+        {
+          "src": "/icons/shortcuts/members-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Eventos",
+      "short_name": "Eventos",
+      "description": "Ver e criar eventos",
+      "url": "/igreja/eventos.html?shortcut=events",
+      "icons": [
+        {
+          "src": "/icons/shortcuts/events-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+
+  "share_target": {
+    "action": "/api/share",
+    "method": "POST",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

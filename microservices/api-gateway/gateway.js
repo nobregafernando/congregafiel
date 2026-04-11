@@ -9,6 +9,7 @@ const express = require("express");
 const cors = require("cors");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 const rateLimit = require("express-rate-limit");
+const verificarJwtGateway = require("./middlewares/jwt-gateway");
 
 const app = express();
 const PORTA = process.env.PORT || 4000;
@@ -136,33 +137,38 @@ app.use(
   criarProxy(SERVICOS.churches)
 );
 
-// MEMBROS
+// MEMBROS — JWT obrigatório
 app.use(
   "/api/membros",
+  verificarJwtGateway,
   criarProxy(SERVICOS.members)
 );
 
-// EVENTOS
+// EVENTOS — JWT obrigatório
 app.use(
   "/api/eventos",
+  verificarJwtGateway,
   criarProxy(SERVICOS.events)
 );
 
-// CONTRIBUIÇÕES (financeiro)
+// CONTRIBUIÇÕES (financeiro) — JWT obrigatório
 app.use(
   "/api/contribuicoes",
+  verificarJwtGateway,
   criarProxy(SERVICOS.finance)
 );
 
-// COMUNICADOS
+// COMUNICADOS — JWT obrigatório
 app.use(
   "/api/comunicados",
+  verificarJwtGateway,
   criarProxy(SERVICOS.announcements)
 );
 
-// PEDIDOS DE ORAÇÃO
+// PEDIDOS DE ORAÇÃO — JWT obrigatório
 app.use(
   "/api/pedidos-oracao",
+  verificarJwtGateway,
   criarProxy(SERVICOS.prayers)
 );
 

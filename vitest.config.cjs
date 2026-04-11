@@ -26,7 +26,7 @@ module.exports = defineConfig({
       {
         test: {
           name: "public",
-          include: ["tests/unit/public/**/*.test.js"],
+          include: ["tests/unit/public/**/*.test.js", "tests/unit/**/relatorios-cobertura.test.js"],
           environment: "happy-dom",
           globals: true,
           clearMocks: true,
