@@ -172,6 +172,25 @@ const ApiServico = (() => {
     });
   }
 
+  function criarPreferenciaPagamento(dados) {
+    return post("/api/pagamentos/preferencia", {
+      valor: dados.valor,
+      tipo: dados.tipo,
+      descricao: dados.descricao || "Contribuição online",
+    });
+  }
+
+  function obterStatusPagamento(preferenceId) {
+    return get("/api/pagamentos/" + preferenceId);
+  }
+
+  function obterRelatorioPagamentos(mes, status) {
+    var query = [];
+    if (mes) query.push("mes=" + encodeURIComponent(mes));
+    if (status) query.push("status=" + encodeURIComponent(status));
+    return get("/api/relatorios/pagamentos" + (query.length ? "?" + query.join("&") : ""));
+  }
+
   // =============================================
   // COMUNICADOS
   // =============================================
@@ -255,6 +274,7 @@ const ApiServico = (() => {
     obterEventos, criarEvento, removerEvento,
     // Contribuicoes
     obterContribuicoes, criarContribuicao, atualizarContribuicao, removerContribuicao,
+    criarPreferenciaPagamento, obterStatusPagamento, obterRelatorioPagamentos,
     // Comunicados
     obterComunicados, criarComunicado, removerComunicado,
     // Pedidos de Oracao

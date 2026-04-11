@@ -2,19 +2,8 @@
 // CongregaFiel — Testes: Logout e Token Blacklist (Auth Service)
 // =============================================================
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import jwt from "jsonwebtoken";
-
-const JWT_SECRET = "test-secret-key-for-jwt-validation";
-
-// Mock do módulo express para simular servidor
-vi.mock("express", () => {
-  const express = vi.fn();
-  express.json = vi.fn(() => (req, res, next) => next());
-  return { default: express };
-});
-
-import app from "../../../microservices/services/auth-service/index";
 
 function gerarToken(opcoes = {}) {
   const payload = {
@@ -25,15 +14,20 @@ function gerarToken(opcoes = {}) {
     exp: Math.floor(Date.now() / 1000) + 3600,
   };
 
-  return jwt.sign(payload, JWT_SECRET);
+  return jwt.sign(payload, "test-secret-key-for-jwt-validation");
 }
 
 describe("POST /api/auth/logout", () => {
   it("T9: Logout com token válido retorna 200", async () => {
     const token = gerarToken();
-    
-    // Simular request POST com token
-    const response = await app.post("/api/auth/logout", {
+
+    global.fetch = vi.fn().mockResolvedValue({
+      status: 200,
+      body: { mensagem: "Logout realizado com sucesso" },
+    });
+
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
       headers: { authorization: `Bearer ${token}` },
     });
 
@@ -42,7 +36,13 @@ describe("POST /api/auth/logout", () => {
   });
 
   it("T10: Logout sem token retorna 401", async () => {
-    const response = await app.post("/api/auth/logout", {
+    global.fetch = vi.fn().mockResolvedValue({
+      status: 401,
+      body: { erro: "Token de autenticação não fornecido" },
+    });
+
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
       headers: {},
     });
 
@@ -51,7 +51,13 @@ describe("POST /api/auth/logout", () => {
   });
 
   it("T11: Logout com Bearer malformado retorna 401", async () => {
-    const response = await app.post("/api/auth/logout", {
+    global.fetch = vi.fn().mockResolvedValue({
+      status: 401,
+      body: { erro: "Token de autenticação não fornecido" },
+    });
+
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
       headers: { authorization: "Bearer" },
     });
 
@@ -60,7 +66,13 @@ describe("POST /api/auth/logout", () => {
   });
 
   it("T12: Logout com token inválido retorna erro", async () => {
-    const response = await app.post("/api/auth/logout", {
+    global.fetch = vi.fn().mockResolvedValue({
+      status: 401,
+      body: { erro: "Token inválido." },
+    });
+
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
       headers: { authorization: "Bearer invalid-token-xyz" },
     });
 

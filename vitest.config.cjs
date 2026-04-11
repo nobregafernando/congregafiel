@@ -25,6 +25,16 @@ module.exports = defineConfig({
       },
       {
         test: {
+          name: "microservices",
+          include: ["tests/unit/microservices/**/*.test.js"],
+          environment: "node",
+          globals: true,
+          clearMocks: true,
+          restoreMocks: true,
+        },
+      },
+      {
+        test: {
           name: "public",
           include: ["tests/unit/public/**/*.test.js", "tests/unit/**/relatorios-cobertura.test.js"],
           environment: "happy-dom",

@@ -3,6 +3,12 @@
 // =============================================================
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
+
+function lerArquivoPublico(relPath) {
+  return fs.readFileSync(path.resolve(process.cwd(), "public", relPath), "utf8");
+}
 
 describe("PWA Compliance", () => {
   // ============================================
@@ -106,10 +112,7 @@ describe("PWA Compliance", () => {
   // T5: Página offline.html acessível
   // ============================================
   it("T5: offline.html existe e é acessível", async () => {
-    const response = await fetch("/offline.html");
-    expect(response.ok).toBe(true);
-    
-    const html = await response.text();
+    const html = lerArquivoPublico("offline.html");
     expect(html).toContain("Sem Conexão");
     expect(html).toContain("offline");
   });
@@ -143,8 +146,7 @@ describe("PWA Compliance", () => {
   // T7: Meta tags PWA no HTML
   // ============================================
   it("T7: index.html contém meta tags PWA", async () => {
-    const response = await fetch("/index.html");
-    const html = await response.text();
+    const html = lerArquivoPublico("index.html");
     
     // Verificar meta tags
     expect(html).toContain('rel="manifest"');

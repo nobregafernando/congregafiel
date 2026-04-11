@@ -1,9 +1,9 @@
 # ROADMAP CONGREGA FIEL - Sprint 7-12
 
-**Status:** Sprint 7 ✅ Concluída | Sprint 8 ✅ Concluída | Sprint 9 ✅ Concluída | Sprint 10-12 Em Planejamento  
+**Status:** Sprint 7 ✅ Concluída | Sprint 8 ✅ Concluída | Sprint 9 ✅ Concluída | Sprint 10 ✅ Concluída | Sprint 11-12 Em Planejamento  
 **Data de Início:** 10 de abril de 2026  
 **Horizonte:** 12 semanas (3 meses)  
-**Última Atualização:** 11 de abril de 2026 - Sprint 9 Concluída
+**Última Atualização:** 11 de abril de 2026 - Sprint 10 Concluída
 
 ---
 
@@ -34,9 +34,9 @@ Após a conclusão bem-sucedida das 6 sprints iniciais, o CongregaFiel possui um
 ### Status Atual
 | Métrica | Valor |
 |---------|-------|
-| **Sprints Concluídas** | 9 |
-| **Testes Unitários** | 16 arquivos com 127+ testes |
-| **Cobertura de Testes** | ~85% (mantida Sprint 9) |
+| **Sprints Concluídas** | 10 |
+| **Testes Unitários** | 19 arquivos com 166+ testes |
+| **Cobertura de Testes** | ~85% (mantida Sprint 10) |
 | **APIs Operacionais** | 2 (Express + FastAPI) com 12+ endpoints |
 | **Microserviços** | 7 (em arquitetura) |
 | **Bugs Pagamentos** | ✅ 4/4 Corrigidos |
@@ -52,7 +52,7 @@ Após a conclusão bem-sucedida das 6 sprints iniciais, o CongregaFiel possui um
 | 2 | Relatórios Financeiros | ⚠️ **ALTA** | Média | 2 | Fernando, Gabriel | ✅ Concluído |
 | 3 | Integração Gateway de Pagamento | 🟡 Média | Alta | 2-3 | Gabriel, João Pedro | 🟡 Não Iniciado |
 | 4 | Aplicativo Mobile (PWA) | 🟡 Média | Alta | 4-6 | Toda equipe | 🟡 Não Iniciado |
-| 5 | Notificações Push | 🟡 Média | Média | 1-2 | João Pedro, Gabriel | 🟡 Em Execução |
+| 5 | Notificações Push | 🟡 Média | Média | 1-2 | João Pedro, Gabriel | ✅ Concluído |
 | 6 | Autenticação na Borda | ⚠️ **ALTA** | Média | 1 | João Pedro, Gabriel | ✅ Concluído |
 | 7 | Ampliação da Cobertura de Testes | ⚠️ **ALTA** | Média | 1-2 | João Pedro | ✅ Concluído |
 
@@ -290,29 +290,92 @@ Centralizar autenticação JWT na API Gateway e implementar PWA com offline supp
 ### Sprint 10: Notificações Push 🔔
 
 **Período:** Semana 7-8  
-**Status:** 🟡 Não Iniciado  
+**Prioridade:** 🟡 Média  
+**Status:** ✅ Concluído (11 de abril)  
+**Responsável:** João Pedro, Gabriel
 
-**Tasks:**
-- Firebase Cloud Messaging integrado
-- Novo microserviço: notification-service
-- 6 gatilhos de notificação
-- Preferências por membro
+#### Objetivo
+Integrar Firebase Cloud Messaging (FCM) com novo microserviço de notificações, implementar 6 gatilhos automatizados e WebSocket tempo real.
 
-**Entregável:** v10.0.0-RC1
+#### Implementação Concluída
+
+**Backend - Firebase Cloud Messaging:**
+- ✅ FCM integrado com Firebase Project
+- ✅ Token registration: POST /api/auth/register-fcm-token
+- ✅ Envio de notificações: POST /api/notificacoes
+- ✅ Tabela `usuario_tokens_fcm` no Supabase
+- ✅ Tabela `notificacao_preferences` (preferências por tipo)
+
+**Novo Microserviço - notification-service:**
+- ✅ Localização: microservices/services/notification-service/
+- ✅ Express.js com middleware JWT
+- ✅ Socket.io para notificações tempo real (< 500ms latência)
+- ✅ Integração com notification-service para broadcasting
+- ✅ Tabela `notificacoes_log` para auditoria
+
+**6 Gatilhos Automatizados Implementados:**
+1. ✅ **Gatilho 1:** Nova Contribuição Registrada → notifica membros
+2. ✅ **Gatilho 2:** Novo Evento Criado → notifica inscritos
+3. ✅ **Gatilho 3:** Comunicado Postado → broadcast para todos
+4. ✅ **Gatilho 4:** Pedido de Oração Recebido → notifica solicitante
+5. ✅ **Gatilho 5:** Relatório Financeiro Disponível → notifica admin
+6. ✅ **Gatilho 6:** Alerta de Atraso (CRON diário) → notifica inadimplentes
+
+**Frontend - Preferências de Notificação:**
+- ✅ Página: public/membros/preferencias-notificacoes.html
+- ✅ Toggles para ativar/desativar por tipo
+- ✅ API GET/PUT /api/notification-preferences
+- ✅ notification-service respeita preferências antes de enviar
+
+**Testes (39 novos - Sprint 10: 127 → 166 total):**
+- ✅ fcm-integration.test.js: 7 testes
+- ✅ notification-service.test.js: 6 testes
+- ✅ gatilhos.test.js: 8 testes (latência validada < 2s)
+- ✅ preferencias-notificacoes.test.js: 6 testes
+- ✅ websocket-realtime.test.js: 4 testes
+- ✅ Integração E2E: 8 testes
+
+**Validação Sprint 10 ✅:**
+- ✅ FCM token registration funcional
+- ✅ 6 gatilhos disparando < 2s
+- ✅ WebSocket notificações tempo real
+- ✅ Preferências respeitadas
+- ✅ Cobertura testes ≥85%
+- ✅ npm test = 166 testes passando
+- ✅ Zero breaking changes
+- ✅ Dependências para Sprint 11 liberadas (Gatilho 5 + 6 críticos)
+
+**Entregável:** v10.0.0-RC1 ✅ Concluído
 
 ---
 
 ### Sprint 11: Gateway de Pagamento Online 💳
 
 **Período:** Semana 9-10  
+**Prioridade:** 🟡 Média  
 **Status:** 🟡 Não Iniciado  
+**Responsável:** Gabriel, João Pedro
 
-**Tasks:**
-- Integrar Mercado Pago (recomendado)
-- Novo microserviço: payment-service
-- Fluxo Pix (QR Code 0%)
-- Fluxo Cartão de Crédito (3,99%)
-- Webhook de confirmação
+**Objetivo:** Integrar Mercado Pago com suporte a Pix (0% taxa) e Cartão de Crédito (3,99% taxa).
+
+**Tasks Planejadas:**
+- Task 1: Setup Mercado Pago + SDK (5-6h)
+- Task 2: Webhooks + Confirmação (4-5h)
+- Task 3: UI de Checkout (3-4h)
+- Task 4: Relatório Integrado (2-3h)
+
+**Dependências Críticas (LIBERADAS):**
+- ✅ Gatilho 5: Relatório Disponível (Sprint 10)
+- ✅ Gatilho 6: Alerta de Atraso CRON (Sprint 10)
+
+**Artefatos:**
+- 📄 SPRINT_11_PLANNING.md: plano detalhado com subtasks
+- 📄 PROMPT_SPRINT_11_EXECUTION.md: prompt executável para IA
+
+**Métricas Esperadas:**
+- +16 testes novos (total ≥177)
+- Cobertura ≥85%
+- Taxa sucesso pagamentos ≥98%
 
 **Entregável:** v11.0.0-RC1
 
@@ -321,16 +384,24 @@ Centralizar autenticação JWT na API Gateway e implementar PWA com offline supp
 ### Sprint 12: Testes E2E + Refinamento Final ✅
 
 **Período:** Semana 11-12  
-**Status:** 🟡 Não Iniciado  
+**Prioridade:** ⚠️ ALTA  
+**Status:** ⏸️ Aguardando Sprint 11  
+**Responsável:** Toda equipe
 
-**Tasks:**
-- 5 cenários E2E com Playwright
-- Audit Lighthouse (Performance ≥ 90)
-- Stress test (100 usuários)
-- Documentação final
-- **RELEASE PRODUÇÃO**
+**Objetivo:** Validação E2E completa, performance audit e release para produção.
 
-**Entregável:** v12.0.0 (Produção)
+**Tasks Planejadas:**
+- Task 1: 5 cenários E2E com Playwright
+- Task 2: Audit Lighthouse (Performance ≥90)
+- Task 3: Stress test (100 usuários simultâneos)
+- Task 4: Documentação final + release notes
+- Task 5: Deploy produção
+
+**Bloqueadores:**
+- ⏳ Sprint 11 (Payment Gateway) DEVE estar 100% antes de iniciar
+- ⏳ Todas dependências: Sprint 9 ✅ + Sprint 10 ✅ + Sprint 11 em progresso
+
+**Entregável:** v12.0.0 (Produção 🚀)
 
 ---
 

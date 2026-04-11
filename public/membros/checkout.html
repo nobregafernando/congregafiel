@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - CongregaFiel</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="checkout.css">
+</head>
+<body>
+    <div class="checkout-shell">
+        <header class="checkout-header">
+            <a href="pagamentos.html" class="checkout-back">Voltar aos pagamentos</a>
+            <div>
+                <p class="checkout-eyebrow">Contribuição online</p>
+                <h1>Pix ou cartão, no seu tempo</h1>
+                <p class="checkout-subtitle">Gere um QR Code instantâneo ou siga para o checkout seguro do Mercado Pago.</p>
+            </div>
+        </header>
+
+        <main class="checkout-grid">
+            <section class="checkout-card checkout-card--form">
+                <form id="checkoutForm" novalidate>
+                    <label class="field">
+                        <span>Valor da contribuição</span>
+                        <input type="number" id="valor" min="5" step="0.01" required placeholder="50.00">
+                    </label>
+
+                    <fieldset class="payment-options">
+                        <legend>Como deseja pagar?</legend>
+                        <label class="payment-option">
+                            <input type="radio" name="tipo" value="pix_qr_code" checked>
+                            <span>
+                                <strong>Pix com QR Code</strong>
+                                <small>Liquidação rápida e sem taxa.</small>
+                            </span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="tipo" value="cartao_credito">
+                            <span>
+                                <strong>Cartão de crédito</strong>
+                                <small>Checkout seguro com taxa de 3,99%.</small>
+                            </span>
+                        </label>
+                    </fieldset>
+
+                    <label class="field">
+                        <span>Descrição</span>
+                        <input type="text" id="descricao" maxlength="120" placeholder="Ex: contribuição mensal">
+                    </label>
+
+                    <button class="primary-button" id="btnGerar" type="submit">Gerar pagamento</button>
+                </form>
+            </section>
+
+            <section class="checkout-card checkout-card--result">
+                <div id="estadoInicial" class="result-panel">
+                    <p class="result-kicker">Pronto para gerar</p>
+                    <h2>Seu comprovante aparece aqui</h2>
+                    <p>Ao criar a preferência, vamos mostrar o QR Code do Pix ou redirecionar você para o checkout do cartão.</p>
+                </div>
+
+                <div id="qrcodeResult" class="result-panel hidden">
+                    <p class="result-kicker">Pix ativo</p>
+                    <h2>Escaneie ou copie o código</h2>
+                    <img id="qrImage" alt="QR Code do Pix">
+                    <p id="qrData" class="pix-code"></p>
+                    <div class="result-actions">
+                        <button type="button" id="btnCopiar" class="secondary-button">Copiar código Pix</button>
+                        <button type="button" id="btnAtualizarStatus" class="ghost-button">Atualizar status</button>
+                    </div>
+                    <p id="statusPagamento" class="status-pill">Aguardando pagamento</p>
+                </div>
+
+                <div id="cartaoResult" class="result-panel hidden">
+                    <p class="result-kicker">Checkout externo</p>
+                    <h2>Redirecionando para o Mercado Pago</h2>
+                    <p id="cartaoMensagem">Seu checkout seguro será aberto em instantes.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <script src="../js/servicos/sessao-servico.js"></script>
+    <script src="../js/servicos/ui-servico.js"></script>
+    <script src="../js/servicos/api-servico.js"></script>
+    <script src="checkout.js"></script>
+</body>
+</html>

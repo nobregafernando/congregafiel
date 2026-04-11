@@ -25,6 +25,7 @@ const SERVICOS = {
   finance:       process.env.FINANCE_SERVICE_URL       || "http://localhost:4005",
   announcements: process.env.ANNOUNCEMENTS_SERVICE_URL || "http://localhost:4006",
   prayers:       process.env.PRAYERS_SERVICE_URL       || "http://localhost:4007",
+  payments:      process.env.PAYMENT_SERVICE_URL       || "http://localhost:4008",
 };
 
 // -------------------------------------------------------
@@ -94,8 +95,10 @@ app.get("/", (_req, res) => {
       membros:        "/api/membros/*",
       eventos:        "/api/eventos/*",
       contribuicoes:  "/api/contribuicoes/*",
+      pagamentos:     "/api/pagamentos/*",
       comunicados:    "/api/comunicados/*",
       pedidos_oracao: "/api/pedidos-oracao/*",
+      relatorios_pagamentos: "/api/relatorios/pagamentos",
     },
   });
 });
@@ -107,6 +110,17 @@ function criarProxy(alvo, opcoes = {}) {
   return createProxyMiddleware({
     target: alvo,
     changeOrigin: true,
+    onProxyReq: (proxyReq, req) => {
+      if (req.usuario) {
+        proxyReq.setHeader("x-usuario-id", req.usuario.id || "");
+        proxyReq.setHeader("x-usuario-email", req.usuario.email || "");
+        proxyReq.setHeader("x-usuario-role", req.usuario.role || "");
+      }
+
+      if (typeof opcoes.onProxyReq === "function") {
+        opcoes.onProxyReq(proxyReq, req);
+      }
+    },
     on: {
       error: (err, _req, res) => {
         console.error(`[Gateway] Erro ao conectar em ${alvo}: ${err.message}`);
@@ -156,6 +170,20 @@ app.use(
   "/api/contribuicoes",
   verificarJwtGateway,
   criarProxy(SERVICOS.finance)
+);
+
+// PAGAMENTOS ONLINE — JWT obrigatório
+app.use(
+  "/api/pagamentos",
+  verificarJwtGateway,
+  criarProxy(SERVICOS.payments)
+);
+
+// RELATÓRIO DE PAGAMENTOS — JWT obrigatório
+app.use(
+  "/api/relatorios/pagamentos",
+  verificarJwtGateway,
+  criarProxy(SERVICOS.payments)
 );
 
 // COMUNICADOS — JWT obrigatório

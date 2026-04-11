@@ -4,9 +4,7 @@
 // =============================================================
 
 const jwt = require("jsonwebtoken");
-const { verificarRevogacao } = require("../supabase-client");
-
-const JWT_SECRET = process.env.SUPABASE_JWT_SECRET;
+const supabaseClient = require("../supabase-client");
 
 /**
  * Middleware que valida JWT centralmente no Gateway.
@@ -14,8 +12,10 @@ const JWT_SECRET = process.env.SUPABASE_JWT_SECRET;
  * Em caso de sucesso, anexa `req.usuario` com os dados decodificados.
  */
 async function verificarJwtGateway(req, res, next) {
+  const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+
   // Se o secret não estiver configurado, pular validação (dev sem Supabase)
-  if (!JWT_SECRET) {
+  if (!jwtSecret) {
     console.warn("[jwt-gateway] SUPABASE_JWT_SECRET não configurado — ignorando validação JWT");
     return next();
   }
@@ -33,13 +33,13 @@ async function verificarJwtGateway(req, res, next) {
 
   try {
     // 1. Validar assinatura do JWT
-    const payload = jwt.verify(token, JWT_SECRET, {
+    const payload = jwt.verify(token, jwtSecret, {
       algorithms: ["HS256"],
     });
 
     // 2. Verificar se token foi revogado (está na blacklist)
     if (payload.jti) {
-      const revogado = await verificarRevogacao(payload.jti);
+      const revogado = await supabaseClient.verificarRevogacao(payload.jti);
       if (revogado) {
         return res.status(401).json({ erro: "Token revogado" });
       }
@@ -58,7 +58,7 @@ async function verificarJwtGateway(req, res, next) {
     next();
   } catch (err) {
     const mensagem = err.name === "TokenExpiredError"
-      ? "Token expirado. Faça login novamente."
+      ? "Token expirado"
       : "Token inválido.";
 
     return res.status(401).json({ erro: mensagem });
