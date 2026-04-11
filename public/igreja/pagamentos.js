@@ -78,6 +78,24 @@
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   }
 
+  // ========== CARREGAR MEMBROS ==========
+  let membrosLista = [];
+  async function carregarMembros() {
+    try {
+      membrosLista = await ApiServico.obterMembros(sessao.igrejaId);
+      const select = $("#membro");
+      if (!select) return;
+      select.innerHTML = '<option value="">Selecione o membro</option>' +
+        membrosLista
+          .sort((a, b) => (a.nome || "").localeCompare(b.nome || ""))
+          .map(m => `<option value="${m.id}">${UIServico.escaparHtml(m.nome)}</option>`)
+          .join("");
+    } catch (erro) {
+      console.error("Erro ao carregar membros:", erro);
+    }
+  }
+  await carregarMembros();
+
   // ========== RENDER ==========
   const totalMesEl = $("#totalMes");
   const totalDizimosEl = $("#totalDizimos");
@@ -253,6 +271,12 @@
       const data = ($("#data").value || "").trim();
       const descricao = ($("#descricao").value || "").trim();
 
+      if (!membroId) {
+        UIServico.mostrarToast("Selecione um membro", "error");
+        return;
+      }
+      const membroSelecionado = membrosLista.find(m => m.id === membroId);
+      const membroNome = membroSelecionado ? membroSelecionado.nome : "";
       if (!tipo) {
         UIServico.mostrarToast("Selecione o tipo de pagamento", "error");
         return;
@@ -269,6 +293,19 @@
       }
 
       try {
+        await ApiServico.criarContribuicao({
+          igrejaId: sessao.igrejaId,
+          membro: membroNome,
+          membroId: membroId,
+          tipo,
+          valor,
+          data,
+          descricao,
+        });
+
+        closeModalFn();
+        await render();
+        UIServico.mostrarToast("Pagamento registrado com sucesso", "success");
         if (modoEdicao && edicaoId) {
           // Atualizar contribuição existente
           await ApiServico.atualizarContribuicao(edicaoId, {

@@ -135,14 +135,25 @@
   function renderVersiculos() {
     // Shuffle and pick 4
     var shuffled = VERSICULOS.slice().sort(() => Math.random() - 0.5).slice(0, 4);
-    versiculosGrid.innerHTML = shuffled
-      .map((v) =>
-        '<button type="button" class="versiculo-chip" data-texto="' + esc('"' + v.texto + '" — ' + v.ref) + '">' +
-          '<span class="versiculo-chip__ref">' + esc(v.ref) + '</span>' +
-          '<span class="versiculo-chip__texto">' + esc(v.texto.substring(0, 60)) + '...</span>' +
-        '</button>'
-      )
-      .join("");
+    versiculosGrid.innerHTML = "";
+    shuffled.forEach(function (v) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "versiculo-chip";
+      btn.dataset.texto = "\u201C" + v.texto + "\u201D \u2014 " + v.ref;
+
+      var refSpan = document.createElement("span");
+      refSpan.className = "versiculo-chip__ref";
+      refSpan.textContent = v.ref;
+
+      var textoSpan = document.createElement("span");
+      textoSpan.className = "versiculo-chip__texto";
+      textoSpan.textContent = v.texto.substring(0, 60) + "...";
+
+      btn.appendChild(refSpan);
+      btn.appendChild(textoSpan);
+      versiculosGrid.appendChild(btn);
+    });
   }
 
   function abrirModal(pedido) {
